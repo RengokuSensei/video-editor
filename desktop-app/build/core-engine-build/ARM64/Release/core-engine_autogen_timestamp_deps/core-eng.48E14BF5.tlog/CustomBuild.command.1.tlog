@@ -1,0 +1,10 @@
+^D:\K50I\VIDEO\CORE-ENGINE\CMAKELISTS.TXT
+setlocal
+D:\k50i\cmake\bin\cmake.exe -SD:/k50i/video/desktop-app -BD:/k50i/video/desktop-app/build --check-stamp-file D:/k50i/video/desktop-app/build/core-engine-build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

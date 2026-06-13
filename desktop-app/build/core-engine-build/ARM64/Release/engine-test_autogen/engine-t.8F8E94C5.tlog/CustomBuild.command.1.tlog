@@ -1,0 +1,40 @@
+^D:\K50I\VIDEO\DESKTOP-APP\BUILD\CMAKEFILES\FC2551D992222AB7AFF78A759F47D867\TIMESTAMP_(CONFIG).RULE
+setlocal
+cd D:\k50i\video\desktop-app\build\core-engine-build
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+D:\k50i\cmake\bin\cmake.exe -E cmake_autogen D:/k50i/video/desktop-app/build/core-engine-build/CMakeFiles/engine-test_autogen.dir/AutogenInfo.json Release
+if %errorlevel% neq 0 goto :cmEnd
+D:\k50i\cmake\bin\cmake.exe -E touch D:/k50i/video/desktop-app/build/core-engine-build/engine-test_autogen/timestamp_Release
+if %errorlevel% neq 0 goto :cmEnd
+D:\k50i\cmake\bin\cmake.exe -E cmake_transform_depfile "Visual Studio 18 2026" MSBuildAdditionalInputs D:/k50i/video/desktop-app D:/k50i/video/core-engine D:/k50i/video/desktop-app/build D:/k50i/video/desktop-app/build/core-engine-build D:/k50i/video/desktop-app/build/core-engine-build/engine-test_autogen/deps_Release D:/k50i/video/desktop-app/build/CMakeFiles/d/b07a6e886b50d5a8a66cf76086d076c370597d6294a8105a85e2ca65127bd04d.AdditionalInputs
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^D:\K50I\VIDEO\DESKTOP-APP\BUILD\CMAKEFILES\C928956B13ADA3803C96AA37B05314AD\ENGINE-TEST_AUTOGEN.RULE
+setlocal
+cd D:\k50i\video\desktop-app\build\core-engine-build
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^D:\K50I\VIDEO\CORE-ENGINE\CMAKELISTS.TXT
+setlocal
+D:\k50i\cmake\bin\cmake.exe -SD:/k50i/video/desktop-app -BD:/k50i/video/desktop-app/build --check-stamp-file D:/k50i/video/desktop-app/build/core-engine-build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,22 @@
+engine-test_autogen/timestamp_Release: \
+	D:/k50i/cmake/share/cmake-4.4/Modules/CMakeCInformation.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/CMakeCommonLanguageInclude.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/CMakeLanguageInformation.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Compiler/CMakeCommonCompilerMacros.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Compiler/MSVC-C.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Compiler/MSVC.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/FindPackageHandleStandardArgs.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/FindPackageMessage.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/FindPkgConfig.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Internal/CMakeCLinkerInformation.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Internal/CMakeCommonLinkerInformation.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Linker/MSVC-C.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Linker/MSVC.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Platform/Linker/Windows-MSVC-C.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Platform/Linker/Windows-MSVC.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Platform/Windows-MSVC-C.cmake \
+	D:/k50i/cmake/share/cmake-4.4/Modules/Platform/Windows-MSVC.cmake \
+	D:/k50i/video/core-engine/CMakeLists.txt \
+	D:/k50i/video/core-engine/src/main.cpp \
+	D:/k50i/video/desktop-app/build/CMakeFiles/4.4.0-rc1/CMakeCCompiler.cmake \
+	D:/k50i/cmake/bin/cmake.exe

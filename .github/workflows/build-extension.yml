@@ -1,0 +1,86 @@
+name: Build and Package Browser Extension
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Automatically clones the vendor submodules
+
+      # 2. Setup Emscripten SDK
+      - name: Setup Emscripten (emsdk)
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: '3.1.64' # Specify a stable Emscripten version
+
+      # 3. Configure and compile C++ Core to WebAssembly
+      - name: Compile C++ Engine to WebAssembly
+        run: |
+          cd browser-extension
+          mkdir -p build_wasm
+          cd build_wasm
+          emcmake cmake ..
+          emmake make -j$(nproc)
+        # This writes video_editor_wasm.js and video_editor_wasm.wasm into:
+        # browser-extension/public/wasm/
+
+      # 4. Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'browser-extension/package-lock.json'
+
+      # 5. Install React / Vite dependencies
+      - name: Install Frontend Dependencies
+        run: |
+          cd browser-extension
+          # Create a lockfile if not present to avoid install failures
+          if [ ! -f package-lock.json ]; then
+            npm i --package-lock-only
+          fi
+          npm ci
+
+      # 6. Build the React/TypeScript extension
+      - name: Compile and Bundle React Frontend
+        run: |
+          cd browser-extension
+          npm run build
+        # This compiles the popup and outputs the Chrome Extension assets to:
+        # browser-extension/dist/
+
+      # 7. Copy the manifest.json to dist if it was not copied by Vite
+      # (Ensures Manifest V3 is in the root of the extension folder)
+      - name: Verify Manifest V3 placement
+        run: |
+          cp browser-extension/public/manifest.json browser-extension/dist/ || true
+
+      # 8. Package the extension folder into a zip file
+      - name: Package Extension (Zip)
+        run: |
+          cd browser-extension/dist
+          zip -r ../../video-editor-extension.zip .
+
+      # 9. Upload the zipped extension artifact
+      - name: Upload Packaged Extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-editor-extension
+          path: video-editor-extension.zip
+          retention-days: 14 # Keep the download active for 14 days

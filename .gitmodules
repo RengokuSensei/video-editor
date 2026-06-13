@@ -1,0 +1,9 @@
+[submodule "vendor/shotcut"]
+	path = vendor/shotcut
+	url = https://github.com/mltframework/shotcut.git
+[submodule "vendor/MediaEditor"]
+	path = vendor/MediaEditor
+	url = https://github.com/opencodewin/MediaEditor.git
+[submodule "vendor/Kiwi-Edit"]
+	path = vendor/Kiwi-Edit
+	url = https://github.com/showlab/Kiwi-Edit.git

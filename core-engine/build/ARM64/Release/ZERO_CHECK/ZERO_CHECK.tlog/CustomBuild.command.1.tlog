@@ -1,0 +1,10 @@
+^D:\K50I\VIDEO\CORE-ENGINE\BUILD\CMAKEFILES\640C02D352FC98190BA07B9CA8C5CAA5\GENERATE.STAMP.RULE
+setlocal
+D:\k50i\cmake\bin\cmake.exe -SD:/k50i/video/core-engine -BD:/k50i/video/core-engine/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/k50i/video/core-engine/build/core-engine.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
