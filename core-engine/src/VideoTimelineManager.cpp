@@ -1,5 +1,6 @@
 #include "VideoTimelineManager.h"
 #include "ai_features/AutoSceneDetector.h"
+#include "diagnostics/FrameworkLogBridge.h"
 
 #ifdef HAVE_MLT
 #include <mlt++/Mlt.h>
@@ -24,6 +25,7 @@ VideoTimelineManager::VideoTimelineManager(const std::string& profileName) {
             throw std::runtime_error("Fatal: Failed to initialize MLT Factory.");
         }
         factoryInitialized = true;
+        diagnostics::registerFrameworkLoggingBridges();
     }
 
     // Initialize the video profile
@@ -224,6 +226,7 @@ namespace Mlt {
 }
 
 VideoTimelineManager::VideoTimelineManager(const std::string& profileName) {
+    diagnostics::registerFrameworkLoggingBridges();
     m_profile = std::make_unique<Mlt::Profile>(profileName.c_str());
     m_tractor = std::make_unique<Mlt::Tractor>(*m_profile);
     m_playlist = std::make_unique<Mlt::Playlist>(*m_profile);

@@ -103,6 +103,24 @@ else()
     set(MLT_LIBRARIES PkgConfig::MLTPP)
 endif()
 
+# Dependency Management: Locate FFmpeg libavutil
+set(FFMPEG_FOUND FALSE)
+find_path(AVUTIL_INCLUDE_DIR
+    NAMES libavutil/log.h
+    PATHS ${MLT_SEARCH_PATH}
+    PATH_SUFFIXES include
+)
+find_library(AVUTIL_LIBRARY
+    NAMES avutil-58 avutil-57 avutil-56 avutil
+    PATHS ${MLT_SEARCH_PATH}
+    PATH_SUFFIXES lib bin
+)
+if(AVUTIL_INCLUDE_DIR AND AVUTIL_LIBRARY)
+    set(FFMPEG_FOUND TRUE)
+    message(STATUS "Found FFmpeg libavutil headers: ${AVUTIL_INCLUDE_DIR}")
+    message(STATUS "Found FFmpeg libavutil library: ${AVUTIL_LIBRARY}")
+endif()
+
 # Dependency Management: Locate ONNX Runtime & DirectML
 set(ONNXRUNTIME_SEARCH_PATH "" CACHE PATH "Custom search path for ONNX Runtime SDK")
 set(ONNXRUNTIME_FOUND FALSE)
@@ -133,6 +151,8 @@ add_library(core-engine STATIC
     src/ai_features/AutoSceneDetector.h
     src/diagnostics/Logger.cpp
     src/diagnostics/Logger.h
+    src/diagnostics/FrameworkLogBridge.cpp
+    src/diagnostics/FrameworkLogBridge.h
 )
 
 target_include_directories(core-engine PUBLIC
@@ -143,6 +163,12 @@ target_include_directories(core-engine PUBLIC
 if(MLT_FOUND)
     target_link_libraries(core-engine PRIVATE ${MLT_LIBRARIES})
     target_compile_definitions(core-engine PRIVATE HAVE_MLT=1)
+endif()
+
+if(FFMPEG_FOUND)
+    target_link_libraries(core-engine PRIVATE ${AVUTIL_LIBRARY})
+    target_include_directories(core-engine PRIVATE ${AVUTIL_INCLUDE_DIR})
+    target_compile_definitions(core-engine PRIVATE HAVE_FFMPEG=1)
 endif()
 
 if(ONNXRUNTIME_FOUND)
