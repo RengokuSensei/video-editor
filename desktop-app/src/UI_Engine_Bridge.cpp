@@ -1,11 +1,14 @@
 #include "UI_Engine_Bridge.h"
 #include "VideoTimelineManager.h"
 #include <QDebug>
+#include <QTimer>
 #include <sstream>
 
 UIEngineBridge::UIEngineBridge(QObject *parent)
     : QObject(parent)
     , m_isPlaying(false)
+    , m_playbackTimer(nullptr)
+    , m_currentFrame(0)
 {
     qDebug() << "[Bridge] Initializing core-engine VideoTimelineManager...";
     try {
@@ -15,6 +18,9 @@ UIEngineBridge::UIEngineBridge(QObject *parent)
     } catch (const std::exception& e) {
         qCritical() << "[Bridge] Fatal error initializing core-engine:" << e.what();
     }
+
+    m_playbackTimer = new QTimer(this);
+    connect(m_playbackTimer, &QTimer::timeout, this, &UIEngineBridge::onPlaybackTick);
 }
 
 UIEngineBridge::~UIEngineBridge() {
@@ -25,6 +31,7 @@ void UIEngineBridge::handlePlay() {
     if (!m_isPlaying) {
         m_isPlaying = true;
         qDebug() << "[Bridge] Engine Play triggered.";
+        m_playbackTimer->start(33); // ~30 FPS (33ms interval)
         emit playbackStateChanged(true);
     }
 }
@@ -33,6 +40,7 @@ void UIEngineBridge::handlePause() {
     if (m_isPlaying) {
         m_isPlaying = false;
         qDebug() << "[Bridge] Engine Pause triggered.";
+        m_playbackTimer->stop();
         emit playbackStateChanged(false);
     }
 }
@@ -63,7 +71,8 @@ void UIEngineBridge::handleAddClip(const QString& type, const QString& path, int
 void UIEngineBridge::handleExportFrame(int frameIndex, const QString& outputPath) {
     qDebug() << "[Bridge] Exporting frame" << frameIndex << "to" << outputPath;
     if (m_engine) {
-        bool success = m_engine->exportFrameToPpm(frameIndex, outputPath.toStdString(), 1920, 1080);
+        // Rendering at 640x360 resolution for near-instantaneous disk writes and smooth preview
+        bool success = m_engine->exportFrameToPpm(frameIndex, outputPath.toStdString(), 640, 360);
         if (success) {
             qDebug() << "[Bridge] Frame exported successfully.";
             emit frameRendered(outputPath);
@@ -90,6 +99,14 @@ void UIEngineBridge::handleAutoCut(int trackIndex) {
     }
 }
 
+void UIEngineBridge::onPlaybackTick() {
+    m_currentFrame++;
+    if (m_currentFrame > 150) {
+        m_currentFrame = 0;
+    }
+    handleExportFrame(m_currentFrame, "exported_frame.ppm");
+}
+
 void UIEngineBridge::refreshTimelineMetadata() {
     if (m_engine) {
         // Capture info from stdout redirected or simple properties query.
@@ -100,3 +117,4 @@ void UIEngineBridge::refreshTimelineMetadata() {
         emit timelineInfoUpdated(info);
     }
 }
+

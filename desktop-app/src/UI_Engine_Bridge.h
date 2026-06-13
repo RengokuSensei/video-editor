@@ -18,6 +18,11 @@ public:
      */
     bool isPlaying() const { return m_isPlaying; }
 
+    /**
+     * @brief Get the current playback frame
+     */
+    int currentFrame() const { return m_currentFrame; }
+
 public slots:
     /**
      * @brief Trigger timeline playback
@@ -77,12 +82,18 @@ signals:
      */
     void autoCutCompleted(const QStringList& cuts);
 
+private slots:
+    void onPlaybackTick();
+
 private:
     std::unique_ptr<VideoTimelineManager> m_engine;
     bool m_isPlaying;
+    class QTimer* m_playbackTimer;
+    int m_currentFrame;
 
     /**
      * @brief Helper to query latest engine state and notify slots/signals
      */
     void refreshTimelineMetadata();
 };
+

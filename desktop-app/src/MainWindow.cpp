@@ -342,7 +342,11 @@ void MainWindow::onFrameRendered(const QString& path) {
     QImage img(path);
     if (!img.isNull()) {
         m_monitorCanvas->setPixmap(QPixmap::fromImage(img).scaled(m_monitorCanvas->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        m_statusLabel->setText("Status: Frame Rendered");
+        if (m_bridge && m_bridge->isPlaying()) {
+            m_statusLabel->setText(QString("Status: Playing... Frame %1").arg(m_bridge->currentFrame()));
+        } else {
+            m_statusLabel->setText("Status: Frame Rendered");
+        }
     } else {
         QMessageBox::warning(this, "Render Error", "Rendered frame PPM file could not be loaded into preview monitor.");
     }

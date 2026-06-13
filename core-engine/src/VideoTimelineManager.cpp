@@ -1,6 +1,7 @@
 #include "VideoTimelineManager.h"
 #include "ai_features/AutoSceneDetector.h"
 #include "diagnostics/FrameworkLogBridge.h"
+#include "diagnostics/Logger.h"
 
 #ifdef HAVE_MLT
 #include <mlt++/Mlt.h>
@@ -230,45 +231,45 @@ VideoTimelineManager::VideoTimelineManager(const std::string& profileName) {
     m_profile = std::make_unique<Mlt::Profile>(profileName.c_str());
     m_tractor = std::make_unique<Mlt::Tractor>(*m_profile);
     m_playlist = std::make_unique<Mlt::Playlist>(*m_profile);
-    std::cout << "[VideoTimelineManager Mock] Created using profile: " << profileName << "\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Created using profile: %s", profileName.c_str());
 }
 
 VideoTimelineManager::~VideoTimelineManager() {
-    std::cout << "[VideoTimelineManager Mock] Destroyed.\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Destroyed.");
 }
 
 bool VideoTimelineManager::initializeProfile(const std::string& profileName) {
-    std::cout << "[VideoTimelineManager Mock] Re-initialized profile: " << profileName << "\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Re-initialized profile: %s", profileName.c_str());
     return true;
 }
 
 bool VideoTimelineManager::addClip(const std::string& type, const std::string& source, int trackIndex) {
-    std::cout << "[VideoTimelineManager Mock] Added clip: Type='" << type << "', Source='" 
-              << source << "' to track " << trackIndex << "\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Added clip: Type='%s', Source='%s' to track %d", 
+                  type.c_str(), source.c_str(), trackIndex);
     return true;
 }
 
 bool VideoTimelineManager::exportFrameToPpm(int frameIndex, const std::string& outputPath, int width, int height) {
-    std::cout << "[VideoTimelineManager Mock] Exporting Mock Frame " << frameIndex 
-              << " to " << outputPath << " (" << width << "x" << height << ")\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Exporting Mock Frame %d to %s (%dx%d)", 
+                  frameIndex, outputPath.c_str(), width, height);
     
-    // Create a mock PPM image (gradient) so the file is actually generated and viewable
     std::ofstream out(outputPath, std::ios::binary);
     if (!out.is_open()) return false;
 
     out << "P6\n" << width << " " << height << "\n255\n";
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            uint8_t r = static_cast<uint8_t>((x * 255) / width);
-            uint8_t g = static_cast<uint8_t>((y * 255) / height);
-            uint8_t b = 128; // fixed blue component
+            // Animate gradient by shifting color offsets with frameIndex
+            uint8_t r = static_cast<uint8_t>(((x + frameIndex * 8) * 255) / width);
+            uint8_t g = static_cast<uint8_t>(((y + frameIndex * 4) * 255) / height);
+            uint8_t b = static_cast<uint8_t>((128 + frameIndex * 2) % 256);
             out.put(r);
             out.put(g);
             out.put(b);
         }
     }
     out.close();
-    std::cout << "[VideoTimelineManager Mock] Generated mock gradient PPM at " << outputPath << "\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Generated mock gradient PPM at %s", outputPath.c_str());
     return true;
 }
 
@@ -281,17 +282,16 @@ void VideoTimelineManager::printTimelineInfo() const {
 }
 
 std::vector<int> VideoTimelineManager::detectAndApplyAutoCut(int trackIndex, const std::string& modelPath) {
-    std::cout << "[VideoTimelineManager Mock] Running Auto-Cut on track " << trackIndex << "...\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Running Auto-Cut on track %d...", trackIndex);
     AutoSceneDetector detector(modelPath);
     
-    // Simulate cut points
     std::vector<int> cuts = detector.detectSceneCuts("mock_timeline_file.mp4", 5, 0.85f);
     
-    std::cout << "[VideoTimelineManager Mock] Auto-Cut completed. Slicing simulated timeline tracks at frame index offsets: ";
+    std::string cutsStr = "";
     for (int cut : cuts) {
-        std::cout << cut << " ";
+        cutsStr += std::to_string(cut) + " ";
     }
-    std::cout << "\n";
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Auto-Cut completed. Slicing simulated timeline tracks at frame index offsets: %s", cutsStr.c_str());
     
     return cuts;
 }
