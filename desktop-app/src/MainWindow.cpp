@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_mediaBinList(nullptr)
     , m_monitorCanvas(nullptr)
+    , m_playbackSlider(nullptr)
     , m_timelineTracks(nullptr)
     , m_logConsole(nullptr)
     , m_playButton(nullptr)
@@ -111,6 +112,12 @@ QWidget* MainWindow::createMonitorWidget() {
     m_monitorCanvas->setObjectName("MonitorCanvas");
     m_monitorCanvas->setAlignment(Qt::AlignCenter);
     m_monitorCanvas->setText("Headless Engine Preview Mode\n[Click Play to trigger pipeline]");
+    m_monitorCanvas->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
+    // Playback slider / progress bar
+    m_playbackSlider = new QSlider(Qt::Horizontal, container);
+    m_playbackSlider->setObjectName("PlaybackSlider");
+    m_playbackSlider->setRange(0, 150);
 
     // Control bar containing player buttons
     QWidget* controlBar = new QWidget(container);
@@ -130,6 +137,7 @@ QWidget* MainWindow::createMonitorWidget() {
 
     layout->addWidget(titleLabel);
     layout->addWidget(m_monitorCanvas, 1);
+    layout->addWidget(m_playbackSlider);
     layout->addWidget(controlBar);
 
     return container;
@@ -191,6 +199,7 @@ void MainWindow::setupConnections() {
     connect(m_exportButton, &QPushButton::clicked, this, &MainWindow::onExportClicked);
     connect(m_autoCutButton, &QPushButton::clicked, this, &MainWindow::onAutoCutClicked);
     connect(m_mediaBinList, &QListWidget::itemDoubleClicked, this, &MainWindow::onMediaBinItemDoubleClicked);
+    connect(m_playbackSlider, &QSlider::valueChanged, this, &MainWindow::onSliderValueChanged);
 
     // Connect Bridge signals to UI slots
     connect(m_bridge, &UIEngineBridge::timelineInfoUpdated, this, &MainWindow::updateStatusText);
@@ -278,6 +287,14 @@ void MainWindow::onAutoCutClicked() {
     m_bridge->handleAutoCut(0); // Analyze base track 0
 }
 
+void MainWindow::onSliderValueChanged(int value) {
+    if (m_bridge) {
+        if (!m_bridge->isPlaying()) {
+            m_bridge->handleExportFrame(value, "exported_frame.ppm");
+        }
+    }
+}
+
 void MainWindow::onAutoCutCompleted(const QStringList& cuts) {
     if (cuts.isEmpty()) {
         QMessageBox::information(this, "AI Auto-Cut", "No scene cuts detected.");
@@ -342,10 +359,16 @@ void MainWindow::onFrameRendered(const QString& path) {
     QImage img(path);
     if (!img.isNull()) {
         m_monitorCanvas->setPixmap(QPixmap::fromImage(img).scaled(m_monitorCanvas->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        if (m_bridge && m_bridge->isPlaying()) {
-            m_statusLabel->setText(QString("Status: Playing... Frame %1").arg(m_bridge->currentFrame()));
-        } else {
-            m_statusLabel->setText("Status: Frame Rendered");
+        if (m_bridge) {
+            m_playbackSlider->blockSignals(true);
+            m_playbackSlider->setValue(m_bridge->currentFrame());
+            m_playbackSlider->blockSignals(false);
+            
+            if (m_bridge->isPlaying()) {
+                m_statusLabel->setText(QString("Status: Playing... Frame %1").arg(m_bridge->currentFrame()));
+            } else {
+                m_statusLabel->setText(QString("Status: Stopped at Frame %1").arg(m_bridge->currentFrame()));
+            }
         }
     } else {
         QMessageBox::warning(this, "Render Error", "Rendered frame PPM file could not be loaded into preview monitor.");
@@ -466,6 +489,31 @@ void MainWindow::applyDarkTheme() {
             border-radius: 4px;
             color: #888888;
             font-size: 13px;
+        }
+
+        QSlider::groove:horizontal {
+            border: 1px solid #3a3a3a;
+            height: 6px;
+            background: #151515;
+            border-radius: 3px;
+        }
+
+        QSlider::handle:horizontal {
+            background: #007acc;
+            border: 1px solid #0098ff;
+            width: 14px;
+            height: 14px;
+            margin: -4px 0;
+            border-radius: 7px;
+        }
+
+        QSlider::handle:horizontal:hover {
+            background: #0098ff;
+        }
+
+        QSlider::sub-page:horizontal {
+            background: #007acc;
+            border-radius: 3px;
         }
     )";
     

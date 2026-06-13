@@ -9,6 +9,7 @@
 
 class UIEngineBridge;
 class LogConsoleWidget;
+class QSlider;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -25,6 +26,7 @@ private slots:
     void onExportClicked();
     void onMediaBinItemDoubleClicked(QListWidgetItem* item);
     void onAutoCutClicked();
+    void onSliderValueChanged(int value);
     
     // Bridge event callbacks
     void updateStatusText(const QString& status);
@@ -41,6 +43,7 @@ private:
     // UI elements
     QListWidget* m_mediaBinList;
     QLabel* m_monitorCanvas;
+    QSlider* m_playbackSlider;
     QTableWidget* m_timelineTracks;
     LogConsoleWidget* m_logConsole;
     
