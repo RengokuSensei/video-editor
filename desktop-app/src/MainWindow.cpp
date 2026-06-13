@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "UI_Engine_Bridge.h"
+#include "LogConsoleWidget.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -14,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_mediaBinList(nullptr)
     , m_monitorCanvas(nullptr)
     , m_timelineTracks(nullptr)
+    , m_logConsole(nullptr)
     , m_playButton(nullptr)
     , m_pauseButton(nullptr)
     , m_importButton(nullptr)
@@ -54,6 +56,10 @@ void MainWindow::setupUI() {
     // Master central layout uses QSplitter (Vertical)
     QSplitter* mainVerticalSplitter = new QSplitter(Qt::Vertical, this);
     setCentralWidget(mainVerticalSplitter);
+
+    // Instantiate and dock the interactive log console at the bottom
+    m_logConsole = new LogConsoleWidget(this);
+    addDockWidget(Qt::BottomDockWidgetArea, m_logConsole);
 
     // Top Region Splitter (Horizontal: Media Bin vs Playback Monitor)
     QSplitter* topHorizontalSplitter = new QSplitter(Qt::Horizontal, mainVerticalSplitter);

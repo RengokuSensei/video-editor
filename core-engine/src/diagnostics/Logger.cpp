@@ -19,7 +19,8 @@ Logger::Logger()
     : m_mode(LogMode::Sync)
     , m_maxFileSize(10 * 1024 * 1024)
     , m_maxBackupFiles(5)
-    , m_shutdown(false) {
+    , m_shutdown(false)
+    , m_callback(nullptr) {
     // Default initial configuration
     configure("app.log", LogMode::Sync);
 }
@@ -54,6 +55,11 @@ void Logger::configure(const std::string& filepath, LogMode mode, size_t maxFile
         m_shutdown = false;
         m_workerThread = std::thread(&Logger::workerLoop, this);
     }
+}
+
+void Logger::setCallback(LogCallback callback) {
+    std::lock_guard<std::mutex> lock(m_logMutex);
+    m_callback = callback;
 }
 
 void Logger::log(LogLevel level, const char* filename, int line, const char* format, ...) {
@@ -161,15 +167,15 @@ void Logger::writeLogEntry(LogLevel level, const char* filename, int line, const
     if (m_mode == LogMode::Async) {
         {
             std::lock_guard<std::mutex> lock(m_queueMutex);
-            m_queue.push(std::move(entry));
+            m_queue.push({level, std::move(entry)});
         }
         m_cv.notify_one();
     } else {
-        writeEntryToDisk(entry);
+        writeEntryToDisk(level, entry);
     }
 }
 
-void Logger::writeEntryToDisk(const std::string& entry) {
+void Logger::writeEntryToDisk(LogLevel level, const std::string& entry) {
     // Synchronize disk writing
     std::lock_guard<std::mutex> lock(m_logMutex);
     
@@ -180,6 +186,10 @@ void Logger::writeEntryToDisk(const std::string& entry) {
     } else {
         // Fallback to stderr if stream is unavailable
         std::cerr << entry;
+    }
+
+    if (m_callback) {
+        m_callback(level, entry.c_str());
     }
 }
 
@@ -272,7 +282,7 @@ void Logger::shutdownWorker() {
 
 void Logger::workerLoop() {
     while (true) {
-        std::string entry;
+        LogQueueEntry qEntry;
         {
             std::unique_lock<std::mutex> lock(m_queueMutex);
             m_cv.wait(lock, [this]() { return !m_queue.empty() || m_shutdown; });
@@ -281,25 +291,25 @@ void Logger::workerLoop() {
                 break;
             }
             
-            entry = std::move(m_queue.front());
+            qEntry = std::move(m_queue.front());
             m_queue.pop();
         }
         
-        writeEntryToDisk(entry);
+        writeEntryToDisk(qEntry.level, qEntry.message);
     }
     
     // Process remaining entries in the queue
     while (true) {
-        std::string entry;
+        LogQueueEntry qEntry;
         {
             std::lock_guard<std::mutex> lock(m_queueMutex);
             if (m_queue.empty()) {
                 break;
             }
-            entry = std::move(m_queue.front());
+            qEntry = std::move(m_queue.front());
             m_queue.pop();
         }
-        writeEntryToDisk(entry);
+        writeEntryToDisk(qEntry.level, qEntry.message);
     }
 }
 

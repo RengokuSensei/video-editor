@@ -8,6 +8,7 @@
 #include <QSplitter>
 
 class UIEngineBridge;
+class LogConsoleWidget;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -41,6 +42,7 @@ private:
     QListWidget* m_mediaBinList;
     QLabel* m_monitorCanvas;
     QTableWidget* m_timelineTracks;
+    LogConsoleWidget* m_logConsole;
     
     // Buttons and status indicators
     QPushButton* m_playButton;

@@ -25,10 +25,20 @@ public:
         Async
     };
 
+    struct LogQueueEntry {
+        LogLevel level;
+        std::string message;
+    };
+
+    using LogCallback = void (*)(LogLevel level, const char* message);
+
     static Logger& getInstance();
 
     // Configure the logger filepath, mode, size limit (10MB default), and backup limit (5 default)
     void configure(const std::string& filepath, LogMode mode, size_t maxFileSize = 10 * 1024 * 1024, size_t maxBackupFiles = 5);
+
+    // Register a callback to intercept log entries (useful for GUI log consoles)
+    void setCallback(LogCallback callback);
 
     // Core log function, captures filename, line number, level, and formatted string
     void log(LogLevel level, const char* filename, int line, const char* format, ...);
@@ -46,7 +56,7 @@ private:
 
     void openLogFile();
     void writeLogEntry(LogLevel level, const char* filename, int line, const std::string& message);
-    void writeEntryToDisk(const std::string& entry);
+    void writeEntryToDisk(LogLevel level, const std::string& entry);
     void checkRotation();
     void pruneBackupFiles();
     void shutdownWorker();
@@ -61,11 +71,13 @@ private:
     std::mutex m_logMutex;         // Protects file stream write and rotation checks
 
     // Async worker queue and thread structures
-    std::queue<std::string> m_queue;
+    std::queue<LogQueueEntry> m_queue;
     std::mutex m_queueMutex;       // Protects async queue
     std::condition_variable m_cv;
     std::thread m_workerThread;
     bool m_shutdown;
+
+    LogCallback m_callback;
 };
 
 } // namespace diagnostics

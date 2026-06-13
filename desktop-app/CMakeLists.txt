@@ -43,6 +43,8 @@ add_executable(desktop-app
     src/MainWindow.cpp
     src/UI_Engine_Bridge.h
     src/UI_Engine_Bridge.cpp
+    src/LogConsoleWidget.h
+    src/LogConsoleWidget.cpp
 )
 
 # Link libraries (Qt6 + core-engine)
