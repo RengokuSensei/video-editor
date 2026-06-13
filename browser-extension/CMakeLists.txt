@@ -27,7 +27,8 @@ target_include_directories(video_editor_wasm PRIVATE
 # Compiler flags and optimizations
 target_compile_options(video_editor_wasm PRIVATE
     -O3
-    -msimd128    # Enable 128-bit Wasm SIMD vectorization (matching NEON optimizations)
+    -msimd128            # Enable 128-bit Wasm SIMD vectorization (matching NEON optimizations)
+    -s USE_PTHREADS=1    # Enable multithreading compile support (SharedArrayBuffer)
 )
 
 # Emscripten linker options
