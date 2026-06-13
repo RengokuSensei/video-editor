@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Find Qt6 libraries
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
 
 # Platform / Architecture Check
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "arm64" OR CMAKE_VS_PLATFORM_NAME MATCHES "ARM64")
@@ -39,19 +39,19 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core-engine" "${CMAKE_CURRENT_B
 # Executable target definition
 add_executable(desktop-app
     src/main.cpp
-    src/MainWindow.h
-    src/MainWindow.cpp
     src/UI_Engine_Bridge.h
     src/UI_Engine_Bridge.cpp
     src/LogConsoleWidget.h
     src/LogConsoleWidget.cpp
+    src/qml.qrc
 )
 
 # Link libraries (Qt6 + core-engine)
 target_link_libraries(desktop-app PRIVATE
     Qt6::Core
     Qt6::Gui
-    Qt6::Widgets
+    Qt6::Qml
+    Qt6::Quick
     core-engine
 )
 

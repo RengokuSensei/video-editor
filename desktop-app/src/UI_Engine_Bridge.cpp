@@ -2,6 +2,8 @@
 #include "VideoTimelineManager.h"
 #include <QDebug>
 #include <QTimer>
+#include <QDir>
+#include <QCoreApplication>
 #include <sstream>
 
 UIEngineBridge::UIEngineBridge(QObject *parent)
@@ -69,13 +71,17 @@ void UIEngineBridge::handleAddClip(const QString& type, const QString& path, int
 }
 
 void UIEngineBridge::handleExportFrame(int frameIndex, const QString& outputPath) {
-    qDebug() << "[Bridge] Exporting frame" << frameIndex << "to" << outputPath;
+    QString absPath = outputPath;
+    if (QDir::isRelativePath(outputPath)) {
+        absPath = QDir::cleanPath(QCoreApplication::applicationDirPath() + "/" + outputPath);
+    }
+    qDebug() << "[Bridge] Exporting frame" << frameIndex << "to" << absPath;
     if (m_engine) {
         // Rendering at 640x360 resolution for near-instantaneous disk writes and smooth preview
-        bool success = m_engine->exportFrameToPpm(frameIndex, outputPath.toStdString(), 640, 360);
+        bool success = m_engine->exportFrameToPpm(frameIndex, absPath.toStdString(), 640, 360);
         if (success) {
-            qDebug() << "[Bridge] Frame exported successfully.";
-            emit frameRendered(outputPath);
+            qDebug() << "[Bridge] Frame exported successfully to:" << absPath;
+            emit frameRendered(absPath);
         } else {
             qWarning() << "[Bridge] Engine frame export failed.";
         }
