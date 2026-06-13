@@ -27,22 +27,22 @@ target_include_directories(video_editor_wasm PRIVATE
 # Compiler flags and optimizations
 target_compile_options(video_editor_wasm PRIVATE
     -O3
-    -msimd128            # Enable 128-bit Wasm SIMD vectorization (matching NEON optimizations)
-    -s USE_PTHREADS=1    # Enable multithreading compile support (SharedArrayBuffer)
+    -msimd128                 # Enable 128-bit Wasm SIMD vectorization (matching NEON optimizations)
+    "-sUSE_PTHREADS=1"        # Enable multithreading compile support (SharedArrayBuffer)
 )
 
 # Emscripten linker options
 target_link_options(video_editor_wasm PRIVATE
-    "--bind"                                  # Enable Embind wrappers
-    "-s" "WASM=1"                             # Output WebAssembly bytecode
-    "-s" "ALLOW_MEMORY_GROWTH=1"              # Allow dynamic resizing of Wasm memory heap
-    "-s" "MODULARIZE=1"                       # Package JS into a loadable module function
-    "-s" "EXPORT_ES6=1"                       # Output modern ES6 export module
-    "-s" "EXPORT_NAME=createVideoEditorModule" # JS factory loader function name
-    "-s" "USE_PTHREADS=1"                     # Enable Web Worker multithreading (SharedArrayBuffer)
-    "-s" "PTHREAD_POOL_SIZE=4"                # Pre-allocate 4 browser thread workers
-    "-msimd128"                               # Pass SIMD flag to linker
-    "-O3"                                     # Aggressive linker optimizations
+    "--bind"                                       # Enable Embind wrappers
+    "-sWASM=1"                                     # Output WebAssembly bytecode
+    "-sALLOW_MEMORY_GROWTH=1"                      # Allow dynamic resizing of Wasm memory heap
+    "-sMODULARIZE=1"                               # Package JS into a loadable module function
+    "-sEXPORT_ES6=1"                               # Output modern ES6 export module
+    "-sEXPORT_NAME=createVideoEditorModule"        # JS factory loader function name
+    "-sUSE_PTHREADS=1"                             # Enable Web Worker multithreading (SharedArrayBuffer)
+    "-sPTHREAD_POOL_SIZE=4"                        # Pre-allocate 4 browser thread workers
+    "-msimd128"                                    # Pass SIMD flag to linker
+    "-O3"                                          # Aggressive linker optimizations
 )
 
 # Set output directory to public/wasm for bundling ease
