@@ -131,6 +131,8 @@ add_library(core-engine STATIC
     src/VideoTimelineManager.h
     src/ai_features/AutoSceneDetector.cpp
     src/ai_features/AutoSceneDetector.h
+    src/diagnostics/Logger.cpp
+    src/diagnostics/Logger.h
 )
 
 target_include_directories(core-engine PUBLIC

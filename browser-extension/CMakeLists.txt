@@ -17,6 +17,7 @@ add_executable(video_editor_wasm
     src/wasm_bindings.cpp
     ${CORE_ENGINE_DIR}/src/VideoTimelineManager.cpp
     ${CORE_ENGINE_DIR}/src/ai_features/AutoSceneDetector.cpp
+    ${CORE_ENGINE_DIR}/src/diagnostics/Logger.cpp
 )
 
 # Includes
