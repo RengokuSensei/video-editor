@@ -57,8 +57,9 @@ export default function App() {
     // In local dev Vite loads this from /public/wasm/video_editor_wasm.js
     const loadWasm = async () => {
       try {
+        const wasmPath = '/wasm/video_editor_wasm.js';
         const moduleFactory = (window as any).createVideoEditorModule || 
-          (await import(/* @vite-ignore */ '/wasm/video_editor_wasm.js')).default;
+          (await import(/* @vite-ignore */ wasmPath)).default;
           
         const module = await moduleFactory({
           locateFile: (path: string) => `/wasm/${path}`
