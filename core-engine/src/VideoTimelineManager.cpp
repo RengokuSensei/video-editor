@@ -264,8 +264,9 @@ bool VideoTimelineManager::exportFrameToPpm(int frameIndex, const std::string& o
         double timeInSeconds = frameIndex / 30.0;
         char cmd[1024];
         // Call the bundled ffmpeg to extract the frame at the exact time
+        // Wrapping the entire command in an extra set of double quotes so cmd.exe parses all nested quotes correctly
         snprintf(cmd, sizeof(cmd), 
-                 "\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -ss %.4f -i \"%s\" -vframes 1 -s %dx%d -update 1 \"%s\" >NUL 2>&1",
+                 "\"\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -ss %.4f -i \"%s\" -vframes 1 -s %dx%d -update 1 \"%s\" >NUL 2>&1\"",
                  timeInSeconds, m_lastVideoPath.c_str(), width, height, outputPath.c_str());
         
         int ret = std::system(cmd);
