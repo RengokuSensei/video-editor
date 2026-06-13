@@ -1,0 +1,58 @@
+# ==========================================
+# Video Editor Monorepo .gitignore
+# ==========================================
+
+# Compiled Object files, templates, engines
+*.o
+*.obj
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+*.lib
+*.exp
+
+# Executables
+*.exe
+*.out
+*.app
+
+# CMake build outputs (we recommend out-of-source builds)
+/build/
+/build_wasm/
+CMakeFiles/
+CMakeCache.txt
+CMakeUsers.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# IDEs and Editors
+.vs/
+.vscode/
+*.suo
+*.user
+*.userossc
+*.sln
+*.vcxproj
+*.filters
+.idea/
+*.swp
+*.swo
+
+# WebAssembly / Emscripten build artifacts
+/browser-extension/build_wasm/
+*.wasm
+*.js.mem
+
+# OS-specific
+Thumbs.db
+.DS_Store
+
+# Temporary / Log files
+*.log
+tmp/
+temp/
