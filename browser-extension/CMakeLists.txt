@@ -41,6 +41,7 @@ target_link_options(video_editor_wasm PRIVATE
     "-sEXPORT_NAME=createVideoEditorModule"        # JS factory loader function name
     "-sUSE_PTHREADS=1"                             # Enable Web Worker multithreading (SharedArrayBuffer)
     "-sPTHREAD_POOL_SIZE=4"                        # Pre-allocate 4 browser thread workers
+    "-sDYNAMIC_EXECUTION=0"                        # Disable eval() / new Function() for Chrome CSP
     "-msimd128"                                    # Pass SIMD flag to linker
     "-O3"                                          # Aggressive linker optimizations
 )
