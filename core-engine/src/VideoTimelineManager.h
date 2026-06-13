@@ -67,4 +67,5 @@ private:
     std::unique_ptr<Mlt::Profile> m_profile;
     std::unique_ptr<Mlt::Tractor> m_tractor;
     std::unique_ptr<Mlt::Playlist> m_playlist;
+    std::string m_lastVideoPath;
 };

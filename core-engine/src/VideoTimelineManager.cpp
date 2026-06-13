@@ -2,12 +2,12 @@
 #include "ai_features/AutoSceneDetector.h"
 #include "diagnostics/FrameworkLogBridge.h"
 #include "diagnostics/Logger.h"
-
 #ifdef HAVE_MLT
 #include <mlt++/Mlt.h>
 #else
 #include <iostream>
 #include <stdexcept>
+#include <cstdlib>
 #endif
 
 #include <iostream>
@@ -231,6 +231,7 @@ VideoTimelineManager::VideoTimelineManager(const std::string& profileName) {
     m_profile = std::make_unique<Mlt::Profile>(profileName.c_str());
     m_tractor = std::make_unique<Mlt::Tractor>(*m_profile);
     m_playlist = std::make_unique<Mlt::Playlist>(*m_profile);
+    m_lastVideoPath = "";
     CORE_LOG_INFO("[VideoTimelineManager Mock] Created using profile: %s", profileName.c_str());
 }
 
@@ -246,12 +247,34 @@ bool VideoTimelineManager::initializeProfile(const std::string& profileName) {
 bool VideoTimelineManager::addClip(const std::string& type, const std::string& source, int trackIndex) {
     CORE_LOG_INFO("[VideoTimelineManager Mock] Added clip: Type='%s', Source='%s' to track %d", 
                   type.c_str(), source.c_str(), trackIndex);
+    if (type == "avformat" || source.find(".mp4") != std::string::npos || 
+        source.find(".mkv") != std::string::npos || source.find(".avi") != std::string::npos ||
+        source.find(".mov") != std::string::npos) {
+        m_lastVideoPath = source;
+        CORE_LOG_INFO("[VideoTimelineManager Mock] Tracked active video source for decoding: %s", m_lastVideoPath.c_str());
+    }
     return true;
 }
 
 bool VideoTimelineManager::exportFrameToPpm(int frameIndex, const std::string& outputPath, int width, int height) {
     CORE_LOG_INFO("[VideoTimelineManager Mock] Exporting Mock Frame %d to %s (%dx%d)", 
                   frameIndex, outputPath.c_str(), width, height);
+    
+    if (!m_lastVideoPath.empty()) {
+        double timeInSeconds = frameIndex / 30.0;
+        char cmd[1024];
+        // Call the bundled ffmpeg to extract the frame at the exact time
+        snprintf(cmd, sizeof(cmd), 
+                 "\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -ss %.4f -i \"%s\" -vframes 1 -s %dx%d -update 1 \"%s\" >NUL 2>&1",
+                 timeInSeconds, m_lastVideoPath.c_str(), width, height, outputPath.c_str());
+        
+        int ret = std::system(cmd);
+        if (ret == 0) {
+            CORE_LOG_INFO("[VideoTimelineManager Mock] Successfully extracted real video frame using FFmpeg from: %s", m_lastVideoPath.c_str());
+            return true;
+        }
+        CORE_LOG_WARNING("[VideoTimelineManager Mock] FFmpeg command failed with code %d. Falling back to gradient generator.", ret);
+    }
     
     std::ofstream out(outputPath, std::ios::binary);
     if (!out.is_open()) return false;
