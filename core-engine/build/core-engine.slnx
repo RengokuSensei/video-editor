@@ -8,9 +8,9 @@
 		<Platform Name="ARM64"/>
 	</Configurations>
 	<Project Path="ALL_BUILD.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="6f19b651-b100-3b99-8e8b-61be43c875a2" DefaultStartup="true">
+		<BuildDependency Project="VideoTimelineManager.vcxproj"/>
 		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
 		<BuildDependency Project="core-engine.vcxproj"/>
-		<BuildDependency Project="engine-test.vcxproj"/>
 	</Project>
 	<Project Path="INSTALL.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="c477689e-3d8b-3ba6-b9ce-8168171067fc">
 		<BuildDependency Project="ALL_BUILD.vcxproj"/>
@@ -20,12 +20,12 @@
 		<Build Solution="MinSizeRel|*" Project="false"/>
 		<Build Solution="RelWithDebInfo|*" Project="false"/>
 	</Project>
+	<Project Path="VideoTimelineManager.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="62c8f7fe-92ac-3227-adbe-a791d917a43e">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="core-engine.vcxproj"/>
+	</Project>
 	<Project Path="ZERO_CHECK.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="aa7d7e39-18a8-307b-a760-be750abaa7f8"/>
 	<Project Path="core-engine.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="30a29db0-8ddc-3cb0-952a-5032db4730bf">
 		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
-	</Project>
-	<Project Path="engine-test.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="34c4073d-e1ad-3bf7-88ca-00f22e774ef5">
-		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
-		<BuildDependency Project="core-engine.vcxproj"/>
 	</Project>
 </Solution>

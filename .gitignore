@@ -21,8 +21,8 @@
 *.app
 
 # CMake build outputs (we recommend out-of-source builds)
-/build/
-/build_wasm/
+build/
+build_wasm/
 CMakeFiles/
 CMakeCache.txt
 CMakeUsers.txt
@@ -56,3 +56,9 @@ Thumbs.db
 *.log
 tmp/
 temp/
+
+# Local Node/NPM installation
+/node-v22.12.0-win-arm64/
+/frontend-ui/node_modules/
+/frontend-ui/dist/
+

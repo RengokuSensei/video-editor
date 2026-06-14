@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "ai_features/TranscriptionManager.h"
 
 // Forward declarations to keep headers clean and avoid bringing in MLT headers in the public interface.
 namespace Mlt {
@@ -51,6 +52,15 @@ public:
     bool insertClip(const std::string& type, const std::string& source, int trackIndex, int startFrame);
 
     /**
+     * @brief Updates or attaches MLT filters (affine, lift_gamma_gain, crop) on a specific clip.
+     * @return true if successful, false otherwise.
+     */
+    bool updateClipFilterProperties(int trackIndex, int clipIndex, 
+                                    double scaleX, double scaleY, double posX, double posY, double rotation,
+                                    double lift, double gamma, double gain,
+                                    double cropLeft, double cropRight, double cropTop, double cropBottom);
+
+    /**
      * @brief Exports a single frame from the timeline to a PPM (P6) raw image file.
      * @param frameIndex The frame position on the timeline to export (0-indexed)
      * @param outputPath The file path to save the PPM image (e.g., "frame.ppm")
@@ -72,6 +82,16 @@ public:
      * @return std::vector<int> Frame indices where cuts were applied
      */
     std::vector<int> detectAndApplyAutoCut(int trackIndex, const std::string& modelPath = "");
+
+    /**
+     * @brief Transcribes a specific clip on a track.
+     */
+    std::vector<TranscriptSegment> transcribeClip(int trackIndex, int clipIndex);
+
+    /**
+     * @brief Cuts a segment of the timeline on a specific track and ripples subsequent clips left.
+     */
+    bool cutTimelineSegment(int trackIndex, int startFrame, int endFrame);
 
 private:
     std::unique_ptr<Mlt::Profile> m_profile;

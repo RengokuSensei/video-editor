@@ -143,12 +143,36 @@ if(ONNXRUNTIME_SEARCH_PATH)
     endif()
 endif()
 
+# Dependency Management: Locate Whisper.cpp
+set(WHISPER_SEARCH_PATH "" CACHE PATH "Custom search path for Whisper.cpp SDK")
+set(WHISPER_FOUND FALSE)
+
+if(WHISPER_SEARCH_PATH)
+    find_path(WHISPER_INCLUDE_DIR
+        NAMES whisper.h
+        PATHS ${WHISPER_SEARCH_PATH}
+        PATH_SUFFIXES include
+    )
+    find_library(WHISPER_LIBRARY
+        NAMES whisper
+        PATHS ${WHISPER_SEARCH_PATH}
+        PATH_SUFFIXES lib bin
+    )
+    if(WHISPER_INCLUDE_DIR AND WHISPER_LIBRARY)
+        set(WHISPER_FOUND TRUE)
+        message(STATUS "Found Whisper headers: ${WHISPER_INCLUDE_DIR}")
+        message(STATUS "Found Whisper library: ${WHISPER_LIBRARY}")
+    endif()
+endif()
+
 # Engine Core Target
 add_library(core-engine STATIC
     src/VideoTimelineManager.cpp
     src/VideoTimelineManager.h
     src/ai_features/AutoSceneDetector.cpp
     src/ai_features/AutoSceneDetector.h
+    src/ai_features/TranscriptionManager.cpp
+    src/ai_features/TranscriptionManager.h
     src/diagnostics/Logger.cpp
     src/diagnostics/Logger.h
     src/diagnostics/FrameworkLogBridge.cpp
@@ -189,15 +213,21 @@ if(ONNXRUNTIME_FOUND)
     endif()
 endif()
 
+if(WHISPER_FOUND)
+    target_link_libraries(core-engine PRIVATE ${WHISPER_LIBRARY})
+    target_include_directories(core-engine PRIVATE ${WHISPER_INCLUDE_DIR})
+    target_compile_definitions(core-engine PRIVATE HAVE_WHISPER=1)
+endif()
+
 # Headless executable for testing
-add_executable(engine-test
+add_executable(VideoTimelineManager
     src/main.cpp
 )
 
-target_link_libraries(engine-test PRIVATE core-engine)
+target_link_libraries(VideoTimelineManager PRIVATE core-engine)
 
 # Install rules
-install(TARGETS core-engine engine-test
+install(TARGETS core-engine VideoTimelineManager
     EXPORT core-engine-targets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
