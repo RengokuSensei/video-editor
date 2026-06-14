@@ -9,6 +9,8 @@ class VideoTimelineManager;
 
 class UIEngineBridge : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY playbackStateChanged)
+    Q_PROPERTY(int currentFrame READ currentFrame WRITE setCurrentFrame NOTIFY currentFrameChanged)
 public:
     explicit UIEngineBridge(QObject *parent = nullptr);
     ~UIEngineBridge();
@@ -22,6 +24,11 @@ public:
      * @brief Get the current playback frame
      */
     int currentFrame() const { return m_currentFrame; }
+
+    /**
+     * @brief Set the current playback frame
+     */
+    void setCurrentFrame(int frame);
 
 public slots:
     /**
@@ -49,6 +56,16 @@ public slots:
     void handleAddClip(const QString& type, const QString& path, int trackIndex);
 
     /**
+     * @brief Inserts a media clip to the timeline at a specific start frame
+     * @param type The MLT producer type (e.g., "color", "avformat")
+     * @param path The filepath or color resource
+     * @param trackIndex The index of the track to insert into
+     * @param startFrame The starting frame index on the timeline
+     * @return true if successful
+     */
+    bool handleInsertClip(const QString& type, const QString& path, int trackIndex, int startFrame);
+
+    /**
      * @brief Exports a frame at the current timeline position to a PPM file
      * @param frameIndex The frame position to export
      * @param outputPath The target output filepath
@@ -62,6 +79,11 @@ public slots:
     void handleAutoCut(int trackIndex);
 
 signals:
+    /**
+     * @brief Emitted when the current playback frame changes
+     */
+    void currentFrameChanged(int frame);
+
     /**
      * @brief Emitted when engine timeline diagnostics change
      */

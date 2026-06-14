@@ -94,6 +94,33 @@ bool VideoTimelineManager::addClip(const std::string& type, const std::string& s
     return false;
 }
 
+bool VideoTimelineManager::insertClip(const std::string& type, const std::string& source, int trackIndex, int startFrame) {
+    Mlt::Producer producer(*m_profile, type.c_str(), source.c_str());
+    if (!producer.is_valid()) {
+        std::cerr << "[Error] Failed to load MLT producer service '" << type << "' with resource '" << source << "'.\n";
+        return false;
+    }
+
+    Mlt::Multitrack* multitrack = m_tractor->multitrack();
+
+    // Dynamically insert missing tracks up to requested index
+    while (multitrack->count() <= trackIndex) {
+        auto extraPlaylist = new Mlt::Playlist(*m_profile);
+        multitrack->connect(*extraPlaylist, multitrack->count());
+    }
+
+    // Retrieve target track and insert clip
+    Mlt::Playlist trackPlaylist(*m_profile);
+    trackPlaylist = multitrack->track(trackIndex);
+    if (trackPlaylist.insert(producer, startFrame) == 0) {
+        std::cout << "[Success] Inserted clip (Service: " << type << ", Source: " << source 
+                  << ") into Timeline Track " << trackIndex << " at frame " << startFrame << ".\n";
+        return true;
+    }
+
+    return false;
+}
+
 bool VideoTimelineManager::exportFrameToPpm(int frameIndex, const std::string& outputPath, int width, int height) {
     // Seek timeline position to selected frame
     m_tractor->set("position", frameIndex);
@@ -252,6 +279,18 @@ bool VideoTimelineManager::addClip(const std::string& type, const std::string& s
         source.find(".mov") != std::string::npos) {
         m_lastVideoPath = source;
         CORE_LOG_INFO("[VideoTimelineManager Mock] Tracked active video source for decoding: %s", m_lastVideoPath.c_str());
+    }
+    return true;
+}
+
+bool VideoTimelineManager::insertClip(const std::string& type, const std::string& source, int trackIndex, int startFrame) {
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Inserted clip: Type='%s', Source='%s' into track %d at frame %d", 
+                  type.c_str(), source.c_str(), trackIndex, startFrame);
+    if (type == "avformat" || source.find(".mp4") != std::string::npos || 
+        source.find(".mkv") != std::string::npos || source.find(".avi") != std::string::npos ||
+        source.find(".mov") != std::string::npos) {
+        m_lastVideoPath = source;
+        CORE_LOG_INFO("[VideoTimelineManager Mock] Tracked active video source from insertion: %s", m_lastVideoPath.c_str());
     }
     return true;
 }

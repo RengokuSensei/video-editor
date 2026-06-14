@@ -35,10 +35,20 @@ public:
      * @brief Adds a video or generator clip to a specific track index.
      * @param type The MLT producer service type (e.g., "color", "avformat", "noise")
      * @param source The resource path/argument for the producer (e.g., "blue", "video.mp4")
-     * @param trackIndex The target track index in the multitrack timeline (usually 0 for base track)
+     * @param trackIndex The index of the track to insert into
      * @return true if the clip was successfully added, false otherwise.
      */
     bool addClip(const std::string& type, const std::string& source, int trackIndex);
+
+    /**
+     * @brief Inserts a video or generator clip at a specific frame index in the track.
+     * @param type The MLT producer service type (e.g., "color", "avformat")
+     * @param source The resource path/argument for the producer
+     * @param trackIndex The target track index
+     * @param startFrame The frame index position where the clip should start
+     * @return true if the clip was successfully inserted, false otherwise.
+     */
+    bool insertClip(const std::string& type, const std::string& source, int trackIndex, int startFrame);
 
     /**
      * @brief Exports a single frame from the timeline to a PPM (P6) raw image file.

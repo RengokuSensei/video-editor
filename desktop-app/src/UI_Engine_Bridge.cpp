@@ -70,6 +70,21 @@ void UIEngineBridge::handleAddClip(const QString& type, const QString& path, int
     }
 }
 
+bool UIEngineBridge::handleInsertClip(const QString& type, const QString& path, int trackIndex, int startFrame) {
+    qDebug() << "[Bridge] Request to insert clip: Type =" << type << ", Path =" << path << ", Track =" << trackIndex << ", StartFrame =" << startFrame;
+    if (m_engine) {
+        bool success = m_engine->insertClip(type.toStdString(), path.toStdString(), trackIndex, startFrame);
+        if (success) {
+            qDebug() << "[Bridge] Clip successfully inserted into engine timeline.";
+            refreshTimelineMetadata();
+            return true;
+        } else {
+            qWarning() << "[Bridge] Engine failed to insert clip.";
+        }
+    }
+    return false;
+}
+
 void UIEngineBridge::handleExportFrame(int frameIndex, const QString& outputPath) {
     QString absPath = outputPath;
     if (QDir::isRelativePath(outputPath)) {
@@ -105,11 +120,19 @@ void UIEngineBridge::handleAutoCut(int trackIndex) {
     }
 }
 
-void UIEngineBridge::onPlaybackTick() {
-    m_currentFrame++;
-    if (m_currentFrame > 150) {
-        m_currentFrame = 0;
+void UIEngineBridge::setCurrentFrame(int frame) {
+    if (m_currentFrame != frame) {
+        m_currentFrame = frame;
+        emit currentFrameChanged(m_currentFrame);
     }
+}
+
+void UIEngineBridge::onPlaybackTick() {
+    int nextFrame = m_currentFrame + 1;
+    if (nextFrame > 150) {
+        nextFrame = 0;
+    }
+    setCurrentFrame(nextFrame);
     handleExportFrame(m_currentFrame, "exported_frame.ppm");
 }
 
