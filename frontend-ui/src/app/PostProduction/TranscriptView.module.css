@@ -1,0 +1,385 @@
+.container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #080810;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.previewPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #080810;
+  border-right: 1px solid #1c1d2e;
+  padding: 16px;
+  gap: 16px;
+  justify-content: center;
+}
+
+.playerWrapper {
+  flex: 1;
+  background-color: #030307;
+  border-radius: 12px;
+  border: 1px solid #1c1d2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 250px;
+}
+
+.emptyPlayer {
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.playerControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #0b0c16;
+  border: 1px solid #1c1d2e;
+  padding: 8px 16px;
+  border-radius: 30px;
+}
+
+.controlBtn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.controlBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.controlBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.scrubberWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeLabel {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.scrubber {
+  flex: 1;
+  accent-color: #8b5cf6;
+  cursor: pointer;
+  height: 4px;
+}
+
+/* Subtitle overlay */
+.subtitleOverlay {
+  position: absolute;
+  bottom: 30px;
+  left: 20px;
+  right: 20px;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.65);
+  padding: 8px 16px;
+  border-radius: 8px;
+  pointer-events: none;
+  font-weight: 600;
+  line-height: 1.4;
+  z-index: 10;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+/* Inspector Panel */
+.inspectorPanel {
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  background-color: #0b0c16;
+  overflow-y: auto;
+  border-left: 1px solid #1c1d2e;
+}
+
+.inspectorHeader {
+  padding: 16px;
+  border-bottom: 1px solid #1c1d2e;
+}
+
+.inspectorHeader h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.inspectorContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sectionTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+/* Subtitle Configuration */
+.subConfigSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.subConfigCard {
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggleCheckbox {
+  accent-color: #8b5cf6;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.subtitleStyling {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #1c1d2e;
+}
+
+.styleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.sizeRange {
+  flex: 1;
+  margin: 0 16px;
+  accent-color: #8b5cf6;
+  height: 3px;
+  cursor: pointer;
+}
+
+.styleVal {
+  width: 35px;
+  text-align: right;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.colorPalette {
+  display: flex;
+  gap: 8px;
+}
+
+.colorOption {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.15s;
+}
+
+.colorOption:hover {
+  transform: scale(1.15);
+}
+
+.activeColor {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.6);
+}
+
+/* Transcript Section */
+.transcriptSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.searchWrapper {
+  margin-bottom: 12px;
+}
+
+.searchInput {
+  width: 100%;
+  background-color: #080810;
+  border: 1px solid #1c1d2e;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+.segmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.segmentCard {
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.segmentCard:hover {
+  background-color: #1c1e33;
+  border-color: #8b5cf6;
+}
+
+.activeSegmentCard {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #141727 0%, #1e1b4b 100%);
+}
+
+.segmentMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeBadge {
+  font-size: 0.65rem;
+  color: #8b5cf6;
+  background-color: rgba(139, 92, 246, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.splitBtn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.splitBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ef4444;
+}
+
+.segmentText {
+  font-size: 0.75rem;
+  color: #f1f5f9;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.emptySegments {
+  font-size: 0.72rem;
+  color: #64748b;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Toasts */
+.toastContainer {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.toast {
+  background-color: #0b0c16;
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: toastIn 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast span {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

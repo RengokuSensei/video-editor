@@ -1,0 +1,347 @@
+.container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #080810;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.previewPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #080810;
+  border-right: 1px solid #1c1d2e;
+  padding: 16px;
+  gap: 16px;
+  justify-content: center;
+}
+
+.playerWrapper {
+  flex: 1;
+  background-color: #030307;
+  border-radius: 12px;
+  border: 1px solid #1c1d2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 250px;
+}
+
+.emptyPlayer {
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.playerControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #0b0c16;
+  border: 1px solid #1c1d2e;
+  padding: 8px 16px;
+  border-radius: 30px;
+}
+
+.controlBtn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.controlBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.controlBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.scrubberWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeLabel {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.scrubber {
+  flex: 1;
+  accent-color: #8b5cf6;
+  cursor: pointer;
+  height: 4px;
+}
+
+/* Inspector Panel */
+.inspectorPanel {
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  background-color: #0b0c16;
+  overflow-y: auto;
+}
+
+.inspectorHeader {
+  padding: 16px;
+  border-bottom: 1px solid #1c1d2e;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inspectorHeader h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.tabButtons {
+  display: flex;
+  background-color: #080810;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid #1c1d2e;
+}
+
+.tabBtn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 6px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tabBtn:hover {
+  color: #ffffff;
+}
+
+.activeTab {
+  background-color: #1e1b4b;
+  color: #8b5cf6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.inspectorContent {
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* LUT Grid */
+.lutGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lutCard {
+  display: flex;
+  align-items: center;
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 8px 12px;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lutCard:hover {
+  background-color: #1c1e33;
+  border-color: #8b5cf6;
+  transform: translateY(-1px);
+}
+
+.activeCard {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #141727 0%, #1e1b4b 100%);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
+}
+
+.lutPreview {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lutInfo {
+  flex: 1;
+  overflow: hidden;
+}
+
+.lutName {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.lutDesc {
+  font-size: 0.65rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Color Wheels */
+.wheelsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.wheelWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.wheelOuter {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 40%, #080810 100%),
+              conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  border: 2px solid #1c1d2e;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.wheelInner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: crosshair;
+}
+
+.wheelCrosshair {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 4px rgba(255,255,255,0.8);
+}
+
+.wheelLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* Sliders */
+.slidersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sliderRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sliderRow label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.sliderControl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sliderControl input[type="range"] {
+  flex: 1;
+  accent-color: #8b5cf6;
+  height: 4px;
+}
+
+.sliderControl span {
+  width: 45px;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #f1f5f9;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Curves */
+.curvesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.curvesHeader {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 1px solid #1c1d2e;
+  padding-bottom: 8px;
+}
+
+.activeCurveType {
+  color: #8b5cf6;
+}
+
+.curvesEditor {
+  background-color: #030307;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.curvesSvg {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  overflow: visible;
+}

@@ -19,7 +19,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@tauri-apps/api/dialog": ["./src/tauri-dialog-shim.ts"],
+      "@tauri-apps/api/tauri": ["./src/tauri-shim.ts"]
+    }
   },
   "include": ["src"]
 }

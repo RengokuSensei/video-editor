@@ -10,6 +10,15 @@
     "core:window:allow-minimize",
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
-    "core:window:allow-start-dragging"
+    "core:window:allow-start-dragging",
+    "allow-open-file-dialog",
+    "allow-import-to-timeline",
+    "allow-handle-ai-generation",
+    "allow-process-sketch-to-npu",
+    "allow-process-video-ai",
+    "allow-set-track-volume",
+    "allow-set-track-mute-solo",
+    "allow-split-clip",
+    "allow-render-timeline-to-disk"
   ]
 }

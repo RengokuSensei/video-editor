@@ -8,6 +8,7 @@ import styles from './AIStudio.module.css';
 
 interface AIStudioProps {
   onSendToTimeline: (filePath: string) => void;
+  onUseAsSketchGuide?: (filePath: string) => void;
 }
 
 const BRUSH_COLORS = [
@@ -25,7 +26,7 @@ const BRUSH_COLORS = [
 // Component
 // ============================================================================
 
-export default function AIStudio({ onSendToTimeline }: AIStudioProps) {
+export default function AIStudio({ onSendToTimeline, onUseAsSketchGuide }: AIStudioProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushColor, setBrushColor] = useState('#000000');
@@ -177,15 +178,49 @@ export default function AIStudio({ onSendToTimeline }: AIStudioProps) {
     onSendToTimeline(generatedFilePath);
   };
 
+  const handleUseAsSketchGuide = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    setIsGenerating(true);
+    setErrorText(null);
+    setStatusMessage('Saving sketch overlay as composition guide...');
+
+    try {
+      const sketchDataUrl = canvas.toDataURL('image/png');
+      
+      const resultPath = await invoke<string>('process_sketch_to_npu', {
+        sketchDataUrl,
+        prompt: 'composition_guide_only',
+        strength: 0.0,
+      });
+
+      console.log('Saved sketch guide at:', resultPath);
+      if (onUseAsSketchGuide) {
+        onUseAsSketchGuide(resultPath);
+      }
+    } catch (err: any) {
+      console.error('Failed to save sketch guide:', err);
+      setErrorText(`Failed to save sketch guide: ${err.message || err}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className={styles.workspace}>
       {/* Left Column: Sketchpad */}
       <div className={styles.sketchpadColumn}>
         <div className={styles.columnHeader}>
           <h2>AI Brush Sketchpad</h2>
-          <button className={styles.clearButton} onClick={handleClear} disabled={isGenerating}>
-            Clear Workspace
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className={styles.clearButton} onClick={handleUseAsSketchGuide} disabled={isGenerating}>
+              Use as Sketch Guide
+            </button>
+            <button className={styles.clearButton} onClick={handleClear} disabled={isGenerating}>
+              Clear Workspace
+            </button>
+          </div>
         </div>
 
         <div className={styles.canvasContainer}>

@@ -1,0 +1,584 @@
+.container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #080810;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.previewPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #080810;
+  border-right: 1px solid #1c1d2e;
+  padding: 16px;
+  gap: 16px;
+  justify-content: center;
+}
+
+.playerWrapper {
+  flex: 1;
+  background-color: #030307;
+  border-radius: 12px;
+  border: 1px solid #1c1d2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 250px;
+}
+
+.emptyPlayer {
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+  z-index: 1;
+}
+
+/* Simulation Overlays */
+.blurOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.glowOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.4);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.chromaOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #0d9488;
+  mix-blend-mode: color-dodge;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.playerControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #0b0c16;
+  border: 1px solid #1c1d2e;
+  padding: 8px 16px;
+  border-radius: 30px;
+}
+
+.controlBtn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.controlBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.controlBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.scrubberWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeLabel {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.scrubber {
+  flex: 1;
+  accent-color: #db2777;
+  cursor: pointer;
+  height: 4px;
+}
+
+/* Inspector Panel */
+.inspectorPanel {
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  background-color: #0b0c16;
+  overflow-y: auto;
+}
+
+.inspectorHeader {
+  padding: 16px;
+  border-bottom: 1px solid #1c1d2e;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inspectorHeader h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.tabButtons {
+  display: flex;
+  background-color: #080810;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid #1c1d2e;
+}
+
+.tabBtn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 6px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tabBtn:hover {
+  color: #ffffff;
+}
+
+.activeTab {
+  background-color: #831843;
+  color: #f472b6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.inspectorContent {
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Effects Stack */
+.effectsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.effectCard {
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.15s;
+}
+
+.effectCardActive {
+  border-color: #db2777;
+}
+
+.effectHeader {
+  display: flex;
+  align-items: center;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  accent-color: #db2777;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.effectTitle {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.effectParams {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #1c1d2e;
+}
+
+.paramRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.paramRow span {
+  width: 60px;
+}
+
+.paramRow input[type="range"] {
+  flex: 1;
+  accent-color: #db2777;
+  height: 3px;
+}
+
+.paramVal {
+  width: 35px !important;
+  text-align: right;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.colorPickerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.colorSwatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.colorLabel {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Keyframes Container */
+.keyframesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.keyframeActionPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.selectWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selectWrapper label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.dropdown {
+  background-color: #080810;
+  border: 1px solid #1c1d2e;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.75rem;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.kfBtns {
+  display: flex;
+  gap: 8px;
+}
+
+.addKfBtn {
+  flex: 2;
+  background: linear-gradient(135deg, #db2777 0%, #701a75 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2);
+}
+
+.addKfBtn span {
+  font-size: 0.8rem;
+}
+
+.clearKfBtn {
+  flex: 1;
+  background-color: transparent;
+  border: 1px solid #1c1d2e;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.clearKfBtn:hover {
+  background-color: rgba(255,255,255,0.05);
+  color: #ffffff;
+}
+
+.keyframesTrackContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trackLabelHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.kfFrameLabel {
+  color: #db2777;
+}
+
+.kfTimelineTrack {
+  height: 24px;
+  background-color: #030307;
+  border: 1px solid #1c1d2e;
+  border-radius: 6px;
+  position: relative;
+  overflow: visible;
+}
+
+.kfPlayheadLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #db2777;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.kfPlayheadLine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 4px solid transparent;
+  border-top-color: #db2777;
+}
+
+.kfMarker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 7px;
+  height: 7px;
+  background-color: #475569;
+  border: 1px solid #1e293b;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.1s;
+}
+
+.kfMarker:hover {
+  background-color: #db2777;
+  transform: translate(-50%, -50%) rotate(45deg) scale(1.3);
+}
+
+.activeKfMarker {
+  background-color: #f472b6;
+  border-color: #db2777;
+  box-shadow: 0 0 6px rgba(219,39,119,0.8);
+}
+
+.kfTimeTicks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+
+.keyframeDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detailsTitle {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.curvesPreviewBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.curvesPreviewSvg {
+  width: 50px;
+  height: 20px;
+  background-color: #080810;
+  border: 1px solid #1c1d2e;
+  border-radius: 4px;
+}
+
+/* Transitions Grid */
+.transitionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.transitionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.transitionCard {
+  display: flex;
+  align-items: center;
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 8px 12px;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.transitionCard:hover {
+  background-color: #1c1e33;
+  border-color: #db2777;
+  transform: translateY(-1px);
+}
+
+.activeTransitionCard {
+  border-color: #db2777;
+  background: linear-gradient(135deg, #141727 0%, #3a0f26 100%);
+  box-shadow: 0 0 10px rgba(219, 39, 119, 0.15);
+}
+
+.transitionIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: #080810;
+  border: 1px solid #1c1d2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #db2777;
+  font-weight: 700;
+}
+
+.transitionInfo {
+  flex: 1;
+  overflow: hidden;
+}
+
+.transitionName {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.transitionDesc {
+  font-size: 0.65rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transitionDurationBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.durationLabelRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.durationScrubber {
+  accent-color: #db2777;
+  height: 3px;
+  cursor: pointer;
+}

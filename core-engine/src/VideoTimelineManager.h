@@ -93,6 +93,26 @@ public:
      */
     bool cutTimelineSegment(int trackIndex, int startFrame, int endFrame);
 
+    /**
+     * @brief Set volume (gain) for a specific track.
+     */
+    bool setTrackVolume(int trackIndex, double dbGain);
+
+    /**
+     * @brief Set mute/solo flags for a specific track.
+     */
+    bool setTrackMuteSolo(int trackIndex, bool mute, bool solo);
+
+    /**
+     * @brief Splits a clip on a specific track.
+     */
+    bool splitClip(int trackIndex, int clipIndex, int splitFrame);
+
+    /**
+     * @brief Renders the entire timeline to a video file.
+     */
+    bool renderTimelineToDisk(const std::string& outputPath, const std::string& encoderParams);
+
 private:
     std::unique_ptr<Mlt::Profile> m_profile;
     std::unique_ptr<Mlt::Tractor> m_tractor;

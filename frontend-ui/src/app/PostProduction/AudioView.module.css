@@ -1,0 +1,386 @@
+.container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #080810;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.previewPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #080810;
+  border-right: 1px solid #1c1d2e;
+  padding: 16px;
+  gap: 16px;
+  justify-content: center;
+}
+
+.playerWrapper {
+  flex: 1;
+  background-color: #030307;
+  border-radius: 12px;
+  border: 1px solid #1c1d2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 250px;
+}
+
+.emptyPlayer {
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.playerControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #0b0c16;
+  border: 1px solid #1c1d2e;
+  padding: 8px 16px;
+  border-radius: 30px;
+}
+
+.controlBtn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.controlBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.controlBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.scrubberWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeLabel {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.scrubber {
+  flex: 1;
+  accent-color: #10b981;
+  cursor: pointer;
+  height: 4px;
+}
+
+/* Inspector Panel */
+.inspectorPanel {
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  background-color: #0b0c16;
+  overflow-y: auto;
+  border-left: 1px solid #1c1d2e;
+}
+
+.inspectorHeader {
+  padding: 16px;
+  border-bottom: 1px solid #1c1d2e;
+}
+
+.inspectorHeader h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.inspectorContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Mixer Section */
+.mixerSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.mixerGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 16px 12px;
+  height: 250px;
+  box-sizing: border-box;
+}
+
+.mixerTrack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+}
+
+.masterTrack {
+  border-left: 1px dashed #1c1d2e;
+  padding-left: 6px;
+}
+
+.dbMeterContainer {
+  flex: 1;
+  width: 8px;
+  background-color: #080810;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.dbMeterFill {
+  width: 100%;
+  background: linear-gradient(to top, #10b981 70%, #eab308 100%);
+  border-radius: 4px;
+  transition: height 0.08s ease;
+}
+
+.faderScrubber {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: slider-vertical;
+  width: 12px;
+  height: 90px;
+  accent-color: #10b981;
+  cursor: grab;
+}
+
+.faderScrubber:active {
+  cursor: grabbing;
+}
+
+.channelLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.dbLabel {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #10b981;
+  font-variant-numeric: tabular-nums;
+}
+
+.trackActions {
+  display: flex;
+  gap: 4px;
+}
+
+.actionBtn {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #1c1d2e;
+  background-color: #080810;
+  color: #64748b;
+  font-size: 0.58rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.actionBtn:hover {
+  color: #ffffff;
+  border-color: #64748b;
+}
+
+.activeMute {
+  background-color: #7f1d1d;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.activeSolo {
+  background-color: #78350f;
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+/* Voiceover Section */
+.voiceoverSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.voForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #141727;
+  border: 1px solid #1c1d2e;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.textareaWrapper {
+  width: 100%;
+}
+
+.voTextarea {
+  width: 100%;
+  height: 80px;
+  background-color: #080810;
+  border: 1px solid #1c1d2e;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  color: #ffffff;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.actorSelectRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.actorSelectRow label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.voSelect {
+  background-color: #080810;
+  border: 1px solid #1c1d2e;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.75rem;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.voGenerateBtn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.voGenerateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.voSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: voSpin 0.8s linear infinite;
+}
+
+@keyframes voSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toasts */
+.toastContainer {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.toast {
+  background-color: #0b0c16;
+  border: 1px solid #10b981;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: voToastIn 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast span {
+  color: #10b981;
+  font-weight: bold;
+}
+
+@keyframes voToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -5,7 +5,7 @@
  */
 
 import classNames from 'classnames';
-import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/api/dialog';
 
 import type { VideoAsset } from '../video-catalog';
 import styles from './VideoSelector.module.css';
@@ -37,7 +37,13 @@ const getFileName = (path: string) => {
 };
 
 const isLocalFile = (video: VideoAsset) => {
-  return !video.thumbUri || video.thumbUri === '' || video.full.includes(':') || video.full.startsWith('\\\\');
+  if (video.full.startsWith('http://') || video.full.startsWith('https://')) {
+    return false;
+  }
+  if (video.full.startsWith('/') || video.full.startsWith('./') || video.full.startsWith('../')) {
+    return false;
+  }
+  return video.full.includes(':\\') || video.full.includes(':/') || video.full.startsWith('\\\\') || !video.thumbUri || video.thumbUri === '';
 };
 
 const VideoIcon = () => (
@@ -74,20 +80,28 @@ export default function VideoSelector({
 }: VideoSelectorProps) {
   const handleImportClick = async () => {
     try {
-      const selectedPath = await invoke<string | null>('open_file_dialog');
+      const selectedPath = await open({
+        filters: [{ name: 'Video', extensions: ['mp4', 'mkv', 'mov'] }]
+      });
       if (selectedPath) {
-        onImportLocal(selectedPath);
+        const filePath = Array.isArray(selectedPath) ? selectedPath[0] : selectedPath;
+        if (filePath) {
+          onImportLocal(filePath);
+        }
       }
     } catch (err) {
-      console.error('Failed to invoke open_file_dialog command:', err);
+      console.error('Failed to import local file using tauri dialog:', err);
     }
   };
 
   const handleDragStart = (e: React.DragEvent, video: VideoAsset) => {
-    e.dataTransfer.setData('application/json', JSON.stringify({
+    console.log("VideoSelector handleDragStart: Dragging asset:", video.full);
+    const payload = JSON.stringify({
       full: video.full,
       alt: video.alt
-    }));
+    });
+    e.dataTransfer.setData('application/json', payload);
+    e.dataTransfer.setData('text/plain', payload);
   };
 
   const catalogVideos = videos.filter(v => !isLocalFile(v));
@@ -111,7 +125,7 @@ export default function VideoSelector({
         {catalogVideos.map((video, index) => (
           <button
             key={video.full}
-            draggable
+            draggable={true}
             onDragStart={(e) => handleDragStart(e, video)}
             className={classNames(styles.videoButton, {
               [styles.selected]: selectedVideo === video
@@ -136,7 +150,7 @@ export default function VideoSelector({
             {localVideos.map((video) => (
               <div
                 key={video.full}
-                draggable
+                draggable={true}
                 onDragStart={(e) => handleDragStart(e, video)}
                 onClick={() => onSelect(video)}
                 className={classNames(styles.localFileCard, {
