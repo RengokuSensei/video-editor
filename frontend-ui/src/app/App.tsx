@@ -297,7 +297,7 @@ export default function App({ config: _config }: AppProps) {
                 onSendToTimeline={handleSendToTimeline}
               />
             </div>
-            <Timeline engine={engine} onSelectClip={handleSelectClip} />
+            <Timeline engine={engine} onSelectClip={handleSelectClip} selectedVideo={selectedVideo} />
           </>
         ) : activeView === 'color' ? (
           <ColorGradingView selectedVideo={selectedVideo} engine={engine} />

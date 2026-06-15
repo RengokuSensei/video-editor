@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '../../tauri-shim';
 import styles from './Timeline.module.css';
 
 // ============================================================================
@@ -26,12 +26,15 @@ interface Toast {
 // Component
 // ============================================================================
 
+import type { VideoAsset } from '../video-catalog';
+
 interface TimelineProps {
   engine?: any;
   onSelectClip?: (filePath: string) => void;
+  selectedVideo?: VideoAsset | null;
 }
 
-export default function Timeline({ engine, onSelectClip }: TimelineProps) {
+export default function Timeline({ engine, onSelectClip, selectedVideo }: TimelineProps) {
   const [clips, setClips] = useState<PlacedClip[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [activeDragTrack, setActiveDragTrack] = useState<number | null>(null);
@@ -333,7 +336,45 @@ export default function Timeline({ engine, onSelectClip }: TimelineProps) {
 
   // Add clip at current playhead position
   const handleAddClipAtPlayhead = () => {
-    addToast('error', 'Timeline: Select a media bin item to place at the playhead.');
+    if (!selectedVideo || !selectedVideo.full) {
+      addToast('error', 'Timeline: Select a media bin item to place at the playhead.');
+      return;
+    }
+
+    const filePath = selectedVideo.full;
+    const trackNumber = tracks.length > 0 ? tracks[0] : 0; // Default to the first available track
+    const durationFrames = 150; // Default duration of 5 seconds (at 30fps)
+    const startFrame = Math.max(0, Math.min(3600 - durationFrames, currentTime)); // Clamp to timeline length
+
+    console.log(`Attempting to import at playhead (Optimistic UI): File=${filePath}, Track=${trackNumber}, Frame=${startFrame}`);
+
+    // Optimistically add clip block to timeline
+    const newClip: PlacedClip = {
+      id: Math.random().toString(36).substring(7),
+      filePath,
+      fileName: getFileName(filePath),
+      startFrame,
+      durationFrames,
+      trackNumber,
+      isAiGenerated: false
+    };
+
+    setClips((prev) => [...prev, newClip]);
+
+    // Invoke C++ sidecar in background
+    invoke<string>('import_to_timeline', {
+      filePath,
+      startTime: startFrame,
+      trackNumber
+    }).then((response) => {
+      console.log('C++ Engine response:', response);
+      addToast('success', `C++ Engine: ${getFileName(filePath)} inserted at playhead on Track ${trackNumber}!`);
+    }).catch((error) => {
+      console.error('Import failed:', error);
+      addToast('error', `C++ Engine Rejected Import: ${error}`);
+      // Rollback clip block from state if engine rejected
+      setClips((prev) => prev.filter((c) => c.id !== newClip.id));
+    });
   };
 
   // Add a new timeline track dynamically
