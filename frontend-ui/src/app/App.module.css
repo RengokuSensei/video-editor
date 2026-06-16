@@ -128,7 +128,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #080810;
+  background-color: #282828;
 }
 
 .app {
@@ -139,7 +139,7 @@
   gap: 0;
   padding: 0;
   min-height: 0;
-  background-color: #080810;
+  background-color: #282828;
 }
 
 .editorWrapper {
@@ -149,9 +149,9 @@
   min-width: 0;
   width: 100%;
   overflow: hidden;
-  background-color: #080810;
-  border-left: 1px solid #1c1d2e;
-  border-right: 1px solid #1c1d2e;
+  background-color: #282828;
+  border-left: 1px solid #1d1d1d;
+  border-right: 1px solid #1d1d1d;
 }
 
 .editor {
@@ -168,8 +168,8 @@
   align-items: center;
   justify-content: space-between;
   height: 48px;
-  background-color: #0b0c16;
-  border-bottom: 1px solid #1c1d2e;
+  background-color: #474747;
+  border-bottom: 1px solid #1d1d1d;
   padding: 0 16px;
   user-select: none;
   flex-shrink: 0;
@@ -193,7 +193,7 @@
 }
 
 .logoAccent {
-  color: #8b5cf6;
+  color: #ed5700;
 }
 
 .divider {
@@ -276,7 +276,7 @@
 .modeActive {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #8b5cf6;
+  color: #ed5700;
 }
 
 .projectName {
@@ -356,8 +356,8 @@
 
 .toolsPanel {
   width: 44px;
-  background-color: #0b0c16;
-  border-right: 1px solid #1c1d2e;
+  background-color: #474747;
+  border-right: 1px solid #1d1d1d;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -388,7 +388,7 @@
 }
 
 .toolActive {
-  background-color: #8b5cf6;
+  background-color: #ed5700;
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
@@ -423,7 +423,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #080810;
+  background-color: #282828;
   padding: 40px;
   box-sizing: border-box;
 }

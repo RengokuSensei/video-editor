@@ -1,8 +1,8 @@
 .timelinePanel {
   display: flex;
   flex-direction: column;
-  background-color: #0b0c16;
-  border-top: 1px solid #1c1d2e;
+  background-color: #282828;
+  border-top: 1px solid #1d1d1d;
   height: 220px;
   width: 100%;
   box-sizing: border-box;
@@ -21,8 +21,8 @@
   align-items: center;
   justify-content: space-between;
   height: 38px;
-  background-color: #0b0c16;
-  border-bottom: 1px solid #1c1d2e;
+  background-color: #282828;
+  border-bottom: 1px solid #1d1d1d;
   padding: 0 16px;
   box-sizing: border-box;
 }
@@ -45,16 +45,16 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background-color: #080810;
+  background-color: #282828;
   padding: 3px 8px;
   border-radius: 4px;
-  border: 1px solid #1c1d2e;
+  border: 1px solid #1d1d1d;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
 }
 
 .timeCurrent {
-  color: #8b5cf6;
+  color: #ed5700;
   font-weight: 600;
 }
 
@@ -88,25 +88,25 @@
 
 .playbackBtn:hover {
   color: #ffffff;
-  background-color: #141727;
+  background-color: #474747;
 }
 
 .playBtn {
-  color: #8b5cf6;
-  background-color: rgba(139, 92, 246, 0.1);
+  color: #ed5700;
+  background-color: rgba(237, 87, 0, 0.1);
 }
 
 .playBtn:hover {
-  background-color: rgba(139, 92, 246, 0.2);
+  background-color: rgba(237, 87, 0, 0.2);
 }
 
 .playActive {
-  background-color: #8b5cf6;
+  background-color: #ed5700;
   color: #ffffff;
 }
 
 .playActive:hover {
-  background-color: #7c3aed;
+  background-color: #ed5700;
 }
 
 .mutedActive {
@@ -121,7 +121,7 @@
 .vDivider {
   width: 1px;
   height: 14px;
-  background-color: #1c1d2e;
+  background-color: #1d1d1d;
   margin: 0 6px;
 }
 
@@ -137,8 +137,8 @@
   gap: 4px;
   padding: 4px 8px;
   border-radius: 4px;
-  border: 1px solid #1c1d2e;
-  background-color: #080810;
+  border: 1px solid #1d1d1d;
+  background-color: #282828;
   color: #94a3b8;
   font-size: 0.7rem;
   font-weight: 500;
@@ -148,8 +148,8 @@
 
 .actionBtn:hover {
   color: #ffffff;
-  background-color: #141727;
-  border-color: #8b5cf6;
+  background-color: #474747;
+  border-color: #ed5700;
 }
 
 /* ============================================================================
@@ -159,7 +159,7 @@
   flex: 1;
   overflow-x: auto;
   overflow-y: auto;
-  background-color: #080810;
+  background-color: #282828;
   position: relative;
 }
 
@@ -188,8 +188,8 @@
 
 .ruler {
   height: 24px;
-  background-color: #141727;
-  border-bottom: 1px solid #1c1d2e;
+  background-color: #474747;
+  border-bottom: 1px solid #1d1d1d;
   display: flex;
   position: sticky;
   top: 0;
@@ -199,8 +199,8 @@
 .rulerHeaderOffset {
   width: 100px;
   flex-shrink: 0;
-  background-color: #141727;
-  border-right: 1px solid #1c1d2e;
+  background-color: #474747;
+  border-right: 1px solid #1d1d1d;
   display: flex;
   align-items: center;
   padding-left: 12px;
@@ -250,7 +250,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background-color: #8b5cf6;
+  background-color: #ed5700;
   z-index: 10;
   pointer-events: none;
   transition: background-color 0.1s;
@@ -266,7 +266,7 @@
   left: -6px;
   width: 13px;
   height: 12px;
-  background-color: #8b5cf6;
+  background-color: #ed5700;
   border-radius: 2px;
   pointer-events: auto;
   cursor: ew-resize;
@@ -298,7 +298,7 @@
   width: 1px;
   height: 100%;
   background-color: inherit;
-  box-shadow: 0 0 6px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 6px rgba(237, 87, 0, 0.5);
 }
 
 /* ============================================================================
@@ -306,19 +306,19 @@
  * ============================================================================ */
 .track {
   height: 44px;
-  border-bottom: 1px solid #1c1d2e;
+  border-bottom: 1px solid #1d1d1d;
   display: flex;
   align-items: center;
   position: relative;
-  background-color: #0b0c16;
+  background-color: #282828;
   box-sizing: border-box;
 }
 
 .trackHeader {
   width: 100px;
   height: 100%;
-  background-color: #0b0c16;
-  border-right: 1px solid #1c1d2e;
+  background-color: #282828;
+  border-right: 1px solid #1d1d1d;
   display: flex;
   align-items: center;
   padding-left: 12px;
@@ -335,9 +335,9 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #8b5cf6;
+  background-color: #ed5700;
   margin-right: 8px;
-  box-shadow: 0 0 6px rgba(139, 92, 246, 0.6);
+  box-shadow: 0 0 6px rgba(237, 87, 0, 0.6);
 }
 
 .trackBody {
@@ -347,7 +347,7 @@
 }
 
 .trackBody.dragOver {
-  background-color: rgba(139, 92, 246, 0.05);
+  background-color: rgba(237, 87, 0, 0.2);
 }
 
 /* ============================================================================
@@ -357,8 +357,8 @@
   position: absolute;
   top: 4px;
   bottom: 4px;
-  background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
-  border: 1px solid #8b5cf6;
+  background: linear-gradient(135deg, #2d4568 0%, #1d2c42 100%);
+  border: 1px solid #486a9f;
   border-radius: 6px;
   color: #ffffff;
   padding: 0 8px;
@@ -381,8 +381,8 @@
 }
 
 .clipBlockAi {
-  background: linear-gradient(135deg, #db2777 0%, #701a75 100%);
-  border-color: #ec4899;
+  background: linear-gradient(135deg, #6c326e 0%, #462047 100%);
+  border-color: #b352b5;
   box-shadow: 0 0 12px rgba(236, 72, 153, 0.25);
 }
 
@@ -409,11 +409,11 @@
  * ============================================================================ */
 .audioTrack {
   height: 38px;
-  background-color: #080810;
+  background-color: #282828;
 }
 
 .audioDot {
-  background-color: #10b981;
+  background-color: #278873;
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
 }
 
@@ -433,7 +433,7 @@
 .waveformBar {
   flex: 1;
   max-width: 3px;
-  background-color: #10b981;
+  background-color: #278873;
   border-radius: 1px;
 }
 
@@ -466,7 +466,7 @@
   animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   pointer-events: auto;
   max-width: 340px;
-  border: 1px solid #1c1d2e;
+  border: 1px solid #1d1d1d;
 }
 
 .toastSuccess {
