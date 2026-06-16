@@ -169,6 +169,8 @@ endif()
 add_library(core-engine STATIC
     src/VideoTimelineManager.cpp
     src/VideoTimelineManager.h
+    src/GpuTimelineProcessor.cpp
+    src/GpuTimelineProcessor.h
     src/ai_features/AutoSceneDetector.cpp
     src/ai_features/AutoSceneDetector.h
     src/ai_features/TranscriptionManager.cpp
