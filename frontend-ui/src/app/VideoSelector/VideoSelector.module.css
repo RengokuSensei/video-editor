@@ -6,7 +6,7 @@
   padding: 16px;
   box-sizing: border-box;
   flex-shrink: 0;
-  background-color: #0b0c16;
+  background-color: #1d1d1d;
   overflow-y: auto;
 }
 
@@ -47,12 +47,12 @@
 }
 
 .selected {
-  outline: 2px solid #8b5cf6;
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  outline: 2px solid #ed5700;
+  box-shadow: 0 0 12px rgba(237, 87, 0, 0.4);
 }
 
 .importButton {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: #474747;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -87,7 +87,7 @@
 }
 
 .aiButton {
-  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  background: #474747;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -130,8 +130,8 @@
   width: 100%;
   display: flex;
   align-items: center;
-  background: #141727;
-  border: 1px solid #1c1d2e;
+  background: #282828;
+  border: 1px solid #1d1d1d;
   border-radius: 8px;
   padding: 8px 12px;
   cursor: grab;
@@ -141,8 +141,8 @@
 }
 
 .localFileCard:hover {
-  background: #1b1e33;
-  border-color: #8b5cf6;
+  background: #474747;
+  border-color: #ed5700;
   transform: translateY(-1px);
 }
 
@@ -164,7 +164,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8b5cf6;
+  color: #ed5700;
   margin-right: 8px;
 }
 

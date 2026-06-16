@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { invoke } from '../../tauri-shim';
 import styles from './Timeline.module.css';
+import type { VideoAsset } from '../video-catalog';
 
 // ============================================================================
 // Types
@@ -25,8 +26,6 @@ interface Toast {
 // ============================================================================
 // Component
 // ============================================================================
-
-import type { VideoAsset } from '../video-catalog';
 
 interface TimelineProps {
   engine?: any;
