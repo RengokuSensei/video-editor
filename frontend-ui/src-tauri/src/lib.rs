@@ -3,9 +3,41 @@ use std::fs::File;
 use std::io::Write;
 use tauri::Manager;
 
+#[cfg(target_os = "android")]
+struct MobileBridge<R: tauri::Runtime>(tauri::plugin::PluginHandle<R>);
+
+mod mobile_bridge {
+  use tauri::{
+    plugin::{Builder, TauriPlugin},
+    Runtime,
+    Manager,
+  };
+
+  pub fn init<R: Runtime>() -> TauriPlugin<R> {
+    Builder::<R>::new("mobile_bridge")
+      .setup(|app, api| {
+        #[cfg(target_os = "android")]
+        {
+          let handle = api.register_android_plugin("com.videoeditor.app", "MobileBridgePlugin")?;
+          app.manage(super::MobileBridge(handle));
+        }
+        let _ = app;
+        let _ = api;
+        Ok(())
+      })
+      .build()
+  }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-  tauri::Builder::default()
+  #[cfg(target_os = "android")]
+  let builder = tauri::Builder::default().plugin(mobile_bridge::init());
+  
+  #[cfg(not(target_os = "android"))]
+  let builder = tauri::Builder::default();
+
+  builder
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(
@@ -81,7 +113,25 @@ async fn process_sketch_to_npu(
 ) -> Result<String, String> {
   #[cfg(target_os = "android")]
   {
-    return Ok("/sdcard/Pictures/npu_simulated.png".to_string());
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    let payload = serde_json::json!({
+      "sketchDataUrl": sketch_data_url.or(base64_image),
+      "prompt": prompt.or(prompt_text),
+      "strength": strength,
+    });
+    
+    #[derive(serde::Deserialize)]
+    struct MobilePathResponse {
+      #[serde(rename = "outputPath")]
+      output_path: String,
+    }
+    
+    let response: MobilePathResponse = bridge.0.run_mobile_plugin_async("processSketchToNpu", payload).await
+      .map_err(|e| format!("Kotlin processSketchToNpu error: {}", e))?;
+    
+    Ok(response.output_path)
   }
 
   #[cfg(not(target_os = "android"))]
@@ -177,7 +227,27 @@ async fn process_video_ai(
 ) -> Result<String, String> {
   #[cfg(target_os = "android")]
   {
-    return Ok("/sdcard/Movies/ai_video_simulated.mp4".to_string());
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    let payload = serde_json::json!({
+      "videoPath": video_path.or(videoPath),
+      "sketchPath": sketch_path.or(sketchPath),
+      "prompt": prompt,
+      "taskType": task_type.or(taskType),
+      "strength": strength,
+    });
+    
+    #[derive(serde::Deserialize)]
+    struct MobilePathResponse {
+      #[serde(rename = "outputPath")]
+      output_path: String,
+    }
+    
+    let response: MobilePathResponse = bridge.0.run_mobile_plugin_async("processVideoAi", payload).await
+      .map_err(|e| format!("Kotlin processVideoAi error: {}", e))?;
+    
+    Ok(response.output_path)
   }
 
   #[cfg(not(target_os = "android"))]
@@ -255,8 +325,6 @@ async fn process_video_ai(
   }
 }
 
-
-
 #[tauri::command]
 async fn handle_ai_generation(prompt: String) -> Result<String, String> {
   // Simulate NPU processing latency
@@ -276,11 +344,24 @@ async fn handle_ai_generation(prompt: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn open_file_dialog() -> Result<Option<String>, String> {
+async fn open_file_dialog(app: tauri::AppHandle) -> Result<Option<String>, String> {
   #[cfg(target_os = "android")]
   {
-    Ok(Some("/sdcard/Movies/sample.mp4".to_string()))
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    #[derive(serde::Deserialize)]
+    struct FileDialogResponse {
+      #[serde(rename = "filePath")]
+      file_path: String,
+    }
+    
+    let response: FileDialogResponse = bridge.0.run_mobile_plugin_async("openFileDialog", serde_json::Value::Null).await
+      .map_err(|e| format!("Kotlin openFileDialog error: {}", e))?;
+    
+    Ok(Some(response.file_path))
   }
+
   #[cfg(not(target_os = "android"))]
   {
     let file = rfd::FileDialog::new()
@@ -296,7 +377,7 @@ fn open_file_dialog() -> Result<Option<String>, String> {
 
 #[tauri::command]
 #[allow(non_snake_case)]
-fn import_to_timeline(
+async fn import_to_timeline(
   app: tauri::AppHandle,
   file_path: Option<String>,
   filePath: Option<String>,
@@ -307,7 +388,24 @@ fn import_to_timeline(
 ) -> Result<String, String> {
   #[cfg(target_os = "android")]
   {
-    return Ok("Imported media to timeline in-process".to_string());
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    let payload = serde_json::json!({
+      "filePath": file_path.or(filePath),
+      "startTime": start_time.or(startTime),
+      "trackNumber": track_number.or(trackNumber),
+    });
+    
+    #[derive(serde::Deserialize)]
+    struct MobileStatusResponse {
+      status: String,
+    }
+    
+    let response: MobileStatusResponse = bridge.0.run_mobile_plugin_async("importToTimeline", payload).await
+      .map_err(|e| format!("Kotlin importToTimeline error: {}", e))?;
+    
+    Ok(response.status)
   }
 
   #[cfg(not(target_os = "android"))]
@@ -355,7 +453,7 @@ fn import_to_timeline(
 
 #[tauri::command]
 #[allow(non_snake_case)]
-fn set_track_volume(
+async fn set_track_volume(
   app: tauri::AppHandle,
   track_index: Option<i32>,
   trackIndex: Option<i32>,
@@ -363,7 +461,23 @@ fn set_track_volume(
 ) -> Result<String, String> {
   #[cfg(target_os = "android")]
   {
-    return Ok("Track volume updated in-process".to_string());
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    let payload = serde_json::json!({
+      "trackIndex": track_index.or(trackIndex),
+      "gain": gain,
+    });
+    
+    #[derive(serde::Deserialize)]
+    struct MobileStatusResponse {
+      status: String,
+    }
+    
+    let response: MobileStatusResponse = bridge.0.run_mobile_plugin_async("setTrackVolume", payload).await
+      .map_err(|e| format!("Kotlin setTrackVolume error: {}", e))?;
+    
+    Ok(response.status)
   }
 
   #[cfg(not(target_os = "android"))]
@@ -398,7 +512,7 @@ fn set_track_volume(
 
 #[tauri::command]
 #[allow(non_snake_case)]
-fn set_track_mute_solo(
+async fn set_track_mute_solo(
   app: tauri::AppHandle,
   track_index: Option<i32>,
   trackIndex: Option<i32>,
@@ -407,7 +521,24 @@ fn set_track_mute_solo(
 ) -> Result<String, String> {
   #[cfg(target_os = "android")]
   {
-    return Ok("Track mute/solo set in-process".to_string());
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    let payload = serde_json::json!({
+      "trackIndex": track_index.or(trackIndex),
+      "mute": mute,
+      "solo": solo,
+    });
+    
+    #[derive(serde::Deserialize)]
+    struct MobileStatusResponse {
+      status: String,
+    }
+    
+    let response: MobileStatusResponse = bridge.0.run_mobile_plugin_async("setTrackMuteSolo", payload).await
+      .map_err(|e| format!("Kotlin setTrackMuteSolo error: {}", e))?;
+    
+    Ok(response.status)
   }
 
   #[cfg(not(target_os = "android"))]
@@ -443,7 +574,7 @@ fn set_track_mute_solo(
 
 #[tauri::command]
 #[allow(non_snake_case)]
-fn split_clip(
+async fn split_clip(
   app: tauri::AppHandle,
   track_index: Option<i32>,
   trackIndex: Option<i32>,
@@ -454,7 +585,24 @@ fn split_clip(
 ) -> Result<String, String> {
   #[cfg(target_os = "android")]
   {
-    return Ok("Clip split in-process".to_string());
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    let payload = serde_json::json!({
+      "trackIndex": track_index.or(trackIndex),
+      "clipIndex": clip_index.or(clipIndex),
+      "splitFrame": split_frame.or(splitFrame),
+    });
+    
+    #[derive(serde::Deserialize)]
+    struct MobileStatusResponse {
+      status: String,
+    }
+    
+    let response: MobileStatusResponse = bridge.0.run_mobile_plugin_async("splitClip", payload).await
+      .map_err(|e| format!("Kotlin splitClip error: {}", e))?;
+    
+    Ok(response.status)
   }
 
   #[cfg(not(target_os = "android"))]
@@ -495,7 +643,7 @@ fn split_clip(
 
 #[tauri::command]
 #[allow(non_snake_case)]
-fn render_timeline_to_disk(
+async fn render_timeline_to_disk(
   app: tauri::AppHandle,
   output_path: Option<String>,
   outputPath: Option<String>,
@@ -504,7 +652,23 @@ fn render_timeline_to_disk(
 ) -> Result<String, String> {
   #[cfg(target_os = "android")]
   {
-    return Ok("Timeline rendered to /sdcard/Movies/output.mp4".to_string());
+    let bridge = app.try_state::<MobileBridge<tauri::Wry>>()
+      .ok_or_else(|| "MobileBridge plugin not registered".to_string())?;
+    
+    let payload = serde_json::json!({
+      "outputPath": output_path.or(outputPath),
+      "encoderParams": encoder_params.or(encoderParams),
+    });
+    
+    #[derive(serde::Deserialize)]
+    struct MobileStatusResponse {
+      status: String,
+    }
+    
+    let response: MobileStatusResponse = bridge.0.run_mobile_plugin_async("renderTimelineToDisk", payload).await
+      .map_err(|e| format!("Kotlin renderTimelineToDisk error: {}", e))?;
+    
+    Ok(response.status)
   }
 
   #[cfg(not(target_os = "android"))]
@@ -550,11 +714,9 @@ fn get_sidecar_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String
   let sidecar_plain = "VideoTimelineManager.exe";
   
   let candidates = vec![
-    // 1. Next to the current executable (dev target/debug/ or release build)
     exe_dir.join(&sidecar_plain),
     exe_dir.join(&sidecar_with_triple),
     
-    // 2. In resources directory (bundled)
     match app.path().resource_dir() {
         Ok(dir) => dir.join("bin").join(&sidecar_plain),
         Err(_) => std::path::PathBuf::new(),
@@ -572,11 +734,9 @@ fn get_sidecar_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String
         Err(_) => std::path::PathBuf::new(),
     },
     
-    // 3. Project source tree
     std::path::PathBuf::from("d:/k50i/video/frontend-ui/src-tauri/bin").join(&sidecar_with_triple),
     std::path::PathBuf::from("d:/k50i/video/frontend-ui/src-tauri/bin").join(&sidecar_plain),
     
-    // 4. Fallback to C++ build directory
     std::path::PathBuf::from("d:/k50i/video/core-engine/build/Release/VideoTimelineManager.exe"),
   ];
   
@@ -585,11 +745,10 @@ fn get_sidecar_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String
     if path.as_os_str().is_empty() {
       continue;
     }
-    let path_str = path.to_string_lossy().into_owned();
     if path.exists() {
       return Ok(path);
     }
-    checked_paths.push(path_str);
+    checked_paths.push(path.to_string_lossy().into_owned());
   }
   
   Err(format!(

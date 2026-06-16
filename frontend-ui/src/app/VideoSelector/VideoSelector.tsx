@@ -5,7 +5,7 @@
  */
 
 import classNames from 'classnames';
-import { open } from '@tauri-apps/api/dialog';
+import { open } from '../../tauri-dialog-shim';
 
 import type { VideoAsset } from '../video-catalog';
 import styles from './VideoSelector.module.css';

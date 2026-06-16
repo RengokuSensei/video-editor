@@ -357,9 +357,7 @@
   position: absolute;
   top: 4px;
   bottom: 4px;
-  background: linear-gradient(135deg, #2d4568 0%, #1d2c42 100%);
-  border: 1px solid #486a9f;
-  border-radius: 6px;
+  border-radius: 4px;
   color: #ffffff;
   padding: 0 8px;
   display: flex;
@@ -367,7 +365,7 @@
   gap: 6px;
   font-size: 0.68rem;
   font-weight: 500;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   cursor: pointer;
   z-index: 2;
@@ -375,19 +373,35 @@
   transition: transform 0.1s, border-color 0.15s;
 }
 
-.clipBlock:hover {
-  border-color: #a78bfa;
+.clipBlockVideo {
+  background: linear-gradient(180deg, #51829b 0%, #3a6377 100%);
+  border: 1px solid #6b9cb5;
+}
+
+.clipBlockVideo:hover {
+  border-color: #ed5700;
+  transform: scaleY(1.02);
+}
+
+.clipBlockAudio {
+  background: linear-gradient(180deg, #599c6f 0%, #3e734f 100%);
+  border: 1px solid #75b78b;
+}
+
+.clipBlockAudio:hover {
+  border-color: #ed5700;
   transform: scaleY(1.02);
 }
 
 .clipBlockAi {
-  background: linear-gradient(135deg, #6c326e 0%, #462047 100%);
-  border-color: #b352b5;
-  box-shadow: 0 0 12px rgba(236, 72, 153, 0.25);
+  background: linear-gradient(180deg, #8b4c7c 0%, #68345b 100%);
+  border: 1px solid #aa649a;
+  box-shadow: 0 0 8px rgba(170, 100, 154, 0.25);
 }
 
 .clipBlockAi:hover {
-  border-color: #f472b6;
+  border-color: #ed5700;
+  transform: scaleY(1.02);
 }
 
 .clipThumb {

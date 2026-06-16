@@ -387,6 +387,24 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
     });
   };
 
+  // Remove the highest timeline track dynamically
+  const handleRemoveTrack = () => {
+    setTracks((prev) => {
+      if (prev.length <= 1) {
+        addToast('error', 'Timeline: Cannot remove all tracks. At least one track is required.');
+        return prev;
+      }
+      const copy = [...prev];
+      const removed = copy.pop();
+      setTimeout(() => {
+        addToast('success', `Timeline: Removed Track ${removed}!`);
+      }, 0);
+      // Remove all clips on this track
+      setClips((prevClips) => prevClips.filter((c) => c.trackNumber !== removed));
+      return copy;
+    });
+  };
+
   // Playhead update logic
   const updatePlayheadPosition = (e: React.MouseEvent | MouseEvent) => {
     if (!scrollContainerRef.current) return;
@@ -543,6 +561,17 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
 
           <button 
             className={styles.actionBtn} 
+            onClick={handleRemoveTrack}
+            title="Remove highest timeline track (-)"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Remove Track
+          </button>
+
+          <button 
+            className={styles.actionBtn} 
             onClick={handleSplitClip}
             title="Split clip at playhead (✂)"
           >
@@ -629,23 +658,34 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
                 >
                   {clips
                     .filter((c) => c.trackNumber === trackNumber)
-                    .map((clip) => (
-                      <div
-                        key={clip.id}
-                        className={`${styles.clipBlock} ${clip.isAiGenerated ? styles.clipBlockAi : ''}`}
-                        style={{
-                          left: `${clip.startFrame * 0.2}px`, // 0.2px per frame scaling
-                          width: `${clip.durationFrames * 0.2}px` // 0.2px per frame scaling
-                        }}
-                        title={`${clip.filePath} (Frame: ${clip.startFrame} - ${clip.startFrame + clip.durationFrames})`}
-                        onClick={() => onSelectClip?.(clip.filePath)}
-                      >
-                        <span className={styles.clipThumb}>
-                          {clip.isAiGenerated ? '✨' : '🎬'}
-                        </span>
-                        <span className={styles.clipLabel}>{clip.fileName}</span>
-                      </div>
-                    ))}
+                    .map((clip) => {
+                      const isAudioClip = clip.filePath.toLowerCase().endsWith('.mp3') ||
+                        clip.filePath.toLowerCase().endsWith('.wav') ||
+                        clip.filePath.toLowerCase().endsWith('.m4a') ||
+                        clip.filePath.toLowerCase().endsWith('.aac');
+                      const blockClass = clip.isAiGenerated
+                        ? styles.clipBlockAi
+                        : isAudioClip
+                          ? styles.clipBlockAudio
+                          : styles.clipBlockVideo;
+                      return (
+                        <div
+                          key={clip.id}
+                          className={`${styles.clipBlock} ${blockClass}`}
+                          style={{
+                            left: `${clip.startFrame * 0.2}px`, // 0.2px per frame scaling
+                            width: `${clip.durationFrames * 0.2}px` // 0.2px per frame scaling
+                          }}
+                          title={`${clip.filePath} (Frame: ${clip.startFrame} - ${clip.startFrame + clip.durationFrames})`}
+                          onClick={() => onSelectClip?.(clip.filePath)}
+                        >
+                          <span className={styles.clipThumb}>
+                            {clip.isAiGenerated ? '✨' : isAudioClip ? '🎵' : '🎬'}
+                          </span>
+                          <span className={styles.clipLabel}>{clip.fileName}</span>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             ))}
