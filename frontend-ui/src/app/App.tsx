@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import type { Configuration, CreativeEngine } from '@cesdk/cesdk-js';
-import { convertFileSrc } from '@tauri-apps/api/core';
+import { convertFileSrc } from '../tauri-shim';
 import MainPlayer from './MainPlayer/MainPlayer';
 import { VIDEO_CATALOG } from './video-catalog';
 import type { VideoAsset } from './video-catalog';
