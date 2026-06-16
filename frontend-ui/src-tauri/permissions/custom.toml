@@ -1,0 +1,53 @@
+[[permission]]
+identifier = "allow-open-file-dialog"
+description = "Enables open_file_dialog command"
+[permission.commands]
+allow = ["open_file_dialog"]
+
+[[permission]]
+identifier = "allow-import-to-timeline"
+description = "Enables import_to_timeline command"
+[permission.commands]
+allow = ["import_to_timeline"]
+
+[[permission]]
+identifier = "allow-handle-ai-generation"
+description = "Enables handle_ai_generation command"
+[permission.commands]
+allow = ["handle_ai_generation"]
+
+[[permission]]
+identifier = "allow-process-sketch-to-npu"
+description = "Enables process_sketch_to_npu command"
+[permission.commands]
+allow = ["process_sketch_to_npu"]
+
+[[permission]]
+identifier = "allow-process-video-ai"
+description = "Enables process_video_ai command"
+[permission.commands]
+allow = ["process_video_ai"]
+
+[[permission]]
+identifier = "allow-set-track-volume"
+description = "Enables set_track_volume command"
+[permission.commands]
+allow = ["set_track_volume"]
+
+[[permission]]
+identifier = "allow-set-track-mute-solo"
+description = "Enables set_track_mute_solo command"
+[permission.commands]
+allow = ["set_track_mute_solo"]
+
+[[permission]]
+identifier = "allow-split-clip"
+description = "Enables split_clip command"
+[permission.commands]
+allow = ["split_clip"]
+
+[[permission]]
+identifier = "allow-render-timeline-to-disk"
+description = "Enables render_timeline_to_disk command"
+[permission.commands]
+allow = ["render_timeline_to_disk"]
