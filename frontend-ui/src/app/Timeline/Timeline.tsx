@@ -295,22 +295,18 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
   // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent, trackNumber: number) => {
     e.preventDefault();
-    e.stopPropagation();
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = 'copy';
     }
     setActiveDragTrack(trackNumber);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragLeave = () => {
     setActiveDragTrack(null);
   };
 
   const handleDrop = async (e: React.DragEvent, trackNumber: number) => {
     e.preventDefault();
-    e.stopPropagation();
     setActiveDragTrack(null);
     console.log("Timeline handleDrop: Drop triggered on Track:", trackNumber);
 
