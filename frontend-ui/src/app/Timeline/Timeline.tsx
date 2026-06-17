@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { invoke } from '../../tauri-shim';
 import styles from './Timeline.module.css';
 import type { VideoAsset } from '../video-catalog';
+import { getCurrentWebview } from '@tauri-apps/api/webview';
 
 // ============================================================================
 // Types
@@ -188,6 +189,48 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
     };
   }, []);
 
+  // Listen to Tauri native drag and drop events (OS file drops) to intercept absolute paths
+  useEffect(() => {
+    let unlistenPromise: Promise<(() => void)> | undefined;
+
+    const setupTauriDragDrop = () => {
+      if (!(window as any).__TAURI_INTERNALS__) return;
+
+      try {
+        const webview = getCurrentWebview();
+        unlistenPromise = webview.onDragDropEvent((event) => {
+          if (event.payload.type === 'over' || event.payload.type === 'enter') {
+            // Temporarily store the absolute path provided by Tauri
+            // so the HTML5 drop handler can read it instead of the stripped WebView2 path
+            if ('paths' in event.payload && event.payload.paths && event.payload.paths.length > 0) {
+              (window as any)._tauriDraggedPath = event.payload.paths[0];
+            }
+          } else if (event.payload.type === 'leave') {
+            // Clean up if they drag out
+            (window as any)._tauriDraggedPath = undefined;
+          } else if (event.payload.type === 'drop') {
+            // Store it just in case, though the drop event triggers concurrently with HTML5 onDrop
+            if ('paths' in event.payload && event.payload.paths && event.payload.paths.length > 0) {
+              (window as any)._tauriDraggedPath = event.payload.paths[0];
+            }
+          }
+        });
+      } catch (err) {
+        console.warn("Could not attach Tauri drag-drop listener", err);
+      }
+    };
+
+    setupTauriDragDrop();
+
+    return () => {
+      if (unlistenPromise) {
+        unlistenPromise.then(unlisten => unlisten());
+      }
+    };
+  }, []);
+
+
+
   // Listen to sidebar trigger events
   useEffect(() => {
     const handleTriggerSplit = () => {
@@ -252,18 +295,22 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
   // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent, trackNumber: number) => {
     e.preventDefault();
+    e.stopPropagation();
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = 'copy';
     }
     setActiveDragTrack(trackNumber);
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setActiveDragTrack(null);
   };
 
   const handleDrop = async (e: React.DragEvent, trackNumber: number) => {
     e.preventDefault();
+    e.stopPropagation();
     setActiveDragTrack(null);
     console.log("Timeline handleDrop: Drop triggered on Track:", trackNumber);
 
@@ -280,11 +327,19 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
         } catch (_) {}
       }
 
-      // 2. Fallback to OS file drop (if files are dragged from Windows Explorer)
-      if (!filePath && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        const file = e.dataTransfer.files[0];
-        filePath = (file as any).path || '';
-        console.log("Timeline handleDrop: OS File drop detected:", filePath);
+      // 2. Fallback to Tauri native OS file drop path OR WebView2 standard path
+      if (!filePath) {
+        const tauriPath = (window as any)._tauriDraggedPath;
+        if (tauriPath) {
+          filePath = tauriPath;
+          console.log("Timeline handleDrop: Tauri Native OS File drop detected:", filePath);
+          // Clear it
+          (window as any)._tauriDraggedPath = undefined;
+        } else if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          filePath = (file as any).path || '';
+          console.log("Timeline handleDrop: OS File drop detected (fallback):", filePath);
+        }
       }
 
       // 3. Fallback to parsing dataTransfer payload
@@ -784,4 +839,3 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
     </div>
   );
 }
-
