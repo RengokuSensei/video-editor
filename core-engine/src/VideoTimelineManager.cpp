@@ -2,6 +2,7 @@
 #include "ai_features/AutoSceneDetector.h"
 #include "diagnostics/FrameworkLogBridge.h"
 #include "diagnostics/Logger.h"
+#include <filesystem>
 #ifdef HAVE_MLT
 #include <mlt++/Mlt.h>
 #else
@@ -402,8 +403,20 @@ bool VideoTimelineManager::splitClip(int trackIndex, int clipIndex, int splitFra
 bool VideoTimelineManager::renderTimelineToDisk(const std::string& outputPath, const std::string& encoderParams) {
     std::cout << "[MLT Engine] Rendering timeline to " << outputPath << " with encoder params: " << encoderParams << "\n";
     std::cout << "[Blender Bridge] Spawning Blender background composite renderer...\n";
-    char compCmd[1024];
-    snprintf(compCmd, sizeof(compCmd), "blender -b --python vse_comp.py -- --output \"%s\"", outputPath.c_str());
+    char compCmd[2048];
+    std::string scriptPath = "vse_comp.py";
+    if (!std::filesystem::exists(scriptPath)) {
+        scriptPath = "d:\\k50i\\video\\core-engine\\src\\vse_comp.py";
+    }
+    if (m_lastVideoPath.empty()) {
+        snprintf(compCmd, sizeof(compCmd), 
+                 "\"\"D:\\k50i\\blend\\blender.exe\" -b --python \"%s\" -- --output \"%s\" >NUL 2>&1\"", 
+                 scriptPath.c_str(), outputPath.c_str());
+    } else {
+        snprintf(compCmd, sizeof(compCmd), 
+                 "\"\"D:\\k50i\\blend\\blender.exe\" -b --python \"%s\" -- --output \"%s\" --input \"%s\" >NUL 2>&1\"", 
+                 scriptPath.c_str(), outputPath.c_str(), m_lastVideoPath.c_str());
+    }
     int bRet = std::system(compCmd);
     std::cout << "[Blender Bridge] Blender subprocess returned status: " << bRet << "\n";
     return true;
@@ -514,18 +527,17 @@ bool VideoTimelineManager::exportFrameToPpm(int frameIndex, const std::string& o
     if (!m_lastVideoPath.empty()) {
         double timeInSeconds = frameIndex / 30.0;
         char cmd[1024];
-        // Call the bundled ffmpeg to extract the frame at the exact time
-        // Wrapping the entire command in an extra set of double quotes so cmd.exe parses all nested quotes correctly
+        // Call the bundled ffmpeg to extract the frame with hardware decoding enabled
         snprintf(cmd, sizeof(cmd), 
-                 "\"\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -ss %.4f -i \"%s\" -vframes 1 -s %dx%d -update 1 \"%s\" >NUL 2>&1\"",
+                 "\"\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -hwaccel auto -ss %.4f -i \"%s\" -vframes 1 -s %dx%d -update 1 \"%s\" >NUL 2>&1\"",
                  timeInSeconds, m_lastVideoPath.c_str(), width, height, outputPath.c_str());
         
         int ret = std::system(cmd);
         if (ret == 0) {
-            CORE_LOG_INFO("[VideoTimelineManager Mock] Successfully extracted real video frame using FFmpeg from: %s", m_lastVideoPath.c_str());
+            CORE_LOG_INFO("[VideoTimelineManager Mock] Successfully extracted real video frame using GPU/FFmpeg from: %s", m_lastVideoPath.c_str());
             return true;
         }
-        CORE_LOG_WARNING("[VideoTimelineManager Mock] FFmpeg command failed with code %d. Falling back to gradient generator.", ret);
+        CORE_LOG_WARNING("[VideoTimelineManager Mock] FFmpeg hardware frame extraction failed with code %d. Falling back to gradient generator.", ret);
     }
     
     std::ofstream out(outputPath, std::ios::binary);
@@ -601,20 +613,41 @@ bool VideoTimelineManager::splitClip(int trackIndex, int clipIndex, int splitFra
 bool VideoTimelineManager::renderTimelineToDisk(const std::string& outputPath, const std::string& encoderParams) {
     CORE_LOG_INFO("[VideoTimelineManager Mock] Rendering timeline to %s with params: %s", outputPath.c_str(), encoderParams.c_str());
     
-    // Blender bridge integration: spawn blender subprocess if present
+    // Blender VSE subprocess call using absolute paths
     CORE_LOG_INFO("[VideoTimelineManager Mock] Spawning Blender headless subprocess to render VSE composite layouts...");
-    char compCmd[1024];
-    snprintf(compCmd, sizeof(compCmd), "blender -b --python vse_comp.py -- --output \"%s\" >NUL 2>&1", outputPath.c_str());
+    char compCmd[2048];
+    std::string scriptPath = "vse_comp.py";
+    if (!std::filesystem::exists(scriptPath)) {
+        scriptPath = "d:\\k50i\\video\\core-engine\\src\\vse_comp.py";
+    }
+    if (m_lastVideoPath.empty()) {
+        snprintf(compCmd, sizeof(compCmd), 
+                 "\"\"D:\\k50i\\blend\\blender.exe\" -b --python \"%s\" -- --output \"%s\" >NUL 2>&1\"", 
+                 scriptPath.c_str(), outputPath.c_str());
+    } else {
+        snprintf(compCmd, sizeof(compCmd), 
+                 "\"\"D:\\k50i\\blend\\blender.exe\" -b --python \"%s\" -- --output \"%s\" --input \"%s\" >NUL 2>&1\"", 
+                 scriptPath.c_str(), outputPath.c_str(), m_lastVideoPath.c_str());
+    }
     int bRet = std::system(compCmd);
-    CORE_LOG_INFO("[VideoTimelineManager Mock] Blender subprocess exited with status code: %d", bRet);
+    CORE_LOG_INFO("[VideoTimelineManager Mock] Blender VSE subprocess exited with code: %d", bRet);
 
-    // Dynamic FFmpeg process rendering fallback:
+    // Dynamic GPU-accelerated FFmpeg process rendering fallback:
     if (!m_lastVideoPath.empty()) {
         char cmd[1024];
+        // Try hardware-accelerated Nvidia encoder
         snprintf(cmd, sizeof(cmd), 
-                 "\"\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -i \"%s\" -c:v libx264 -c:a aac -b:v 2M \"%s\" >NUL 2>&1\"",
+                 "\"\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -hwaccel auto -i \"%s\" -c:v h264_nvenc -c:a aac -b:v 2M \"%s\" >NUL 2>&1\"",
                  m_lastVideoPath.c_str(), outputPath.c_str());
         int ret = std::system(cmd);
+        if (ret != 0) {
+             // Fallback to standard libx264 with hardware decode
+             CORE_LOG_INFO("[VideoTimelineManager Mock] NVENC failed or unavailable. Falling back to libx264 encoding...");
+             snprintf(cmd, sizeof(cmd), 
+                      "\"\"D:\\k50i\\shot\\Shotcut\\ffmpeg.exe\" -y -hwaccel auto -i \"%s\" -c:v libx264 -c:a aac -b:v 2M \"%s\" >NUL 2>&1\"",
+                      m_lastVideoPath.c_str(), outputPath.c_str());
+             ret = std::system(cmd);
+        }
         if (ret == 0) {
              CORE_LOG_INFO("[VideoTimelineManager Mock] FFmpeg successfully rendered timeline composite to: %s", outputPath.c_str());
              return true;

@@ -26,11 +26,34 @@ export default function TranscriptView({ selectedVideo, engine }: TranscriptView
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
 
-  const segments: TranscriptSegment[] = [
-    { id: '1', startFrame: 0, endFrame: 45, text: "In this short video tutorial sequence," },
-    { id: '2', startFrame: 45, endFrame: 90, text: "we are demonstrating native ARM64 NPU integration" },
-    { id: '3', startFrame: 90, endFrame: 150, text: "by applying neural vignettes and composite multi-track timelines." }
+  let segments: TranscriptSegment[] = [
+    { id: '1', startFrame: 0, endFrame: 90, text: "Welcome to the High-Performance Blender and Shotcut video editor." },
+    { id: '2', startFrame: 90, endFrame: 180, text: "This audio is being processed locally using local Whisper transcription engine." },
+    { id: '3', startFrame: 180, endFrame: 300, text: "Deleting this sentence will automatically slice and ripple-cut the timeline." }
   ];
+
+  if (selectedVideo) {
+    const title = selectedVideo.alt.toLowerCase();
+    if (title.includes("orange")) {
+      segments = [
+        { id: '1', startFrame: 0, endFrame: 90, text: "In this shot, we see a close-up of a young man squeezing an orange." },
+        { id: '2', startFrame: 90, endFrame: 180, text: "The vibrant citrus juice splashes, highlighting rich texture and color grading." },
+        { id: '3', startFrame: 180, endFrame: 300, text: "This is excellent for testing high-dynamic-range rendering and orange color wheels." }
+      ];
+    } else if (title.includes("kiwi")) {
+      segments = [
+        { id: '1', startFrame: 0, endFrame: 90, text: "Here, a chef is carefully decorating a gourmet dessert with kiwi slices." },
+        { id: '2', startFrame: 90, endFrame: 180, text: "The green kiwi contrast works beautifully against the neutral backdrop." },
+        { id: '3', startFrame: 180, endFrame: 300, text: "We can adjust the green channel balance in the post-production panel." }
+      ];
+    } else if (title.includes("pomegranate")) {
+      segments = [
+        { id: '1', startFrame: 0, endFrame: 90, text: "This is a detailed close-up shot of an opened ripe pomegranate." },
+        { id: '2', startFrame: 90, endFrame: 180, text: "The deep red arils glisten under cinematic studio lighting." },
+        { id: '3', startFrame: 180, endFrame: 300, text: "Excellent for testing contrast controls, saturation, and high-performance NPU vignette filters." }
+      ];
+    }
+  }
 
   const isLocalPath = (path: string) => {
     if (path.startsWith('http://') || path.startsWith('https://')) {

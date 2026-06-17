@@ -157,13 +157,53 @@ export default function VfxView({ selectedVideo, engine }: VfxViewProps) {
     setKeyframes([]);
   };
 
+  // Simulate active transition opacity/transformations based on playback frame
+  let transitionStyle: React.CSSProperties = {};
+  let transitionOverlay: React.ReactNode = null;
+
+  if (currentTime < transitionDuration) {
+    const progress = currentTime / transitionDuration;
+    if (selectedTransition === 'Cross Dissolve') {
+      transitionStyle = { opacity: progress };
+    } else if (selectedTransition === 'Fade to Black') {
+      transitionOverlay = (
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: '#000000',
+          opacity: 1 - progress,
+          zIndex: 8,
+          pointerEvents: 'none'
+        }} />
+      );
+    } else if (selectedTransition === 'Zoom In') {
+      transitionStyle = { transform: `scale(${0.8 + 0.2 * progress})` };
+    } else if (selectedTransition === 'Slide Up') {
+      transitionStyle = { transform: `translateY(${(1 - progress) * 100}px)` };
+    }
+  }
+
   return (
     <div className={styles.container}>
       {/* Left: Video Preview */}
       <div className={styles.previewPanel}>
         <div className={styles.playerWrapper}>
           {selectedVideo ? (
-            <MainPlayer activeUrl={activeUrl} onEngineInit={() => {}} />
+            <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', ...transitionStyle }}>
+              <MainPlayer activeUrl={activeUrl} onEngineInit={() => {}} />
+              {/* Transition Overlays */}
+              {transitionOverlay}
+              {/* Vignette Overlay */}
+              {vignetteActive && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  pointerEvents: 'none',
+                  boxShadow: 'inset 0 0 100px rgba(0, 0, 0, 0.8)',
+                  zIndex: 6
+                }} />
+              )}
+            </div>
           ) : (
             <div className={styles.emptyPlayer}>
               <span>Select a video from the Editor's library to start compositing</span>
@@ -171,7 +211,7 @@ export default function VfxView({ selectedVideo, engine }: VfxViewProps) {
           )}
           
           {/* Overlay simulation filters */}
-          {blurActive && <div className={styles.blurOverlay} style={{ backdropFilter: `blur(${blurVal / 5}px)` }} />}
+          {blurActive && <div className={styles.blurOverlay} style={{ backdropFilter: `blur(${blurVal / 5}px)`, WebkitBackdropFilter: `blur(${blurVal / 5}px)` }} />}
           {glowActive && <div className={styles.glowOverlay} style={{ opacity: glowVal / 100 }} />}
           {chromaActive && <div className={styles.chromaOverlay} />}
         </div>

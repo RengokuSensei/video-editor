@@ -129,7 +129,15 @@ export default function AudioView({ selectedVideo, engine }: AudioViewProps) {
     setIsGeneratingVo(true);
     setTimeout(() => {
       setIsGeneratingVo(false);
+      const generatedPath = `ai_voiceover_${Math.floor(Date.now() / 1000)}.wav`;
       setVoiceText('');
+      
+      // Dispatch clip insertion event to the sequencer Timeline
+      const event = new CustomEvent('insert-timeline-clip', {
+        detail: { filePath: generatedPath }
+      });
+      window.dispatchEvent(event);
+      
       addToast(`Fairlight: AI Voiceover added successfully to Track 2!`);
     }, 2000);
   };

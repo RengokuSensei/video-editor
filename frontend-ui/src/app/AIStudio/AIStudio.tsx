@@ -39,6 +39,7 @@ export default function AIStudio({ onSendToTimeline, onUseAsSketchGuide }: AIStu
   const [statusMessage, setStatusMessage] = useState('');
   const [generatedFilePath, setGeneratedFilePath] = useState<string | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [studioMode, setStudioMode] = useState<'image' | 'video'>('image');
 
   // Initialize Canvas dimensions and default settings
   useEffect(() => {
@@ -136,9 +137,6 @@ export default function AIStudio({ onSendToTimeline, onUseAsSketchGuide }: AIStu
   };
 
   const handleGenerate = async () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
     if (!prompt.trim()) {
       setErrorText('Please specify an AI prompt.');
       return;
@@ -146,30 +144,49 @@ export default function AIStudio({ onSendToTimeline, onUseAsSketchGuide }: AIStu
 
     setIsGenerating(true);
     setErrorText(null);
-    setStatusMessage('Capturing sketch pad and initializing local NPU engine...');
+    setGeneratedFilePath(null);
 
-    try {
-      // 1. Get base64 Data URL from canvas
-      const sketchDataUrl = canvas.toDataURL('image/png');
-
-      setStatusMessage('Executing neural rendering on local Windows NPU...');
-      
-      // 2. Invoke local NPU processing
-      const resultPath = await invoke<string>('process_sketch_to_npu', {
-        sketchDataUrl,
-        prompt,
-        strength,
-      });
-
-      console.log('NPU sidecar generated path:', resultPath);
-      
-      setGeneratedFilePath(resultPath);
-      setStatusMessage('Generation completed successfully!');
-    } catch (err: any) {
-      console.error('NPU process error:', err);
-      setErrorText(`NPU Generation Failed: ${err.message || err}`);
-    } finally {
-      setIsGenerating(false);
+    if (studioMode === 'image') {
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        setIsGenerating(false);
+        return;
+      }
+      setStatusMessage('Capturing sketch pad and initializing local NPU engine...');
+      try {
+        const sketchDataUrl = canvas.toDataURL('image/png');
+        setStatusMessage('Executing neural rendering on local Windows NPU...');
+        const resultPath = await invoke<string>('process_sketch_to_npu', {
+          sketchDataUrl,
+          prompt,
+          strength,
+        });
+        setGeneratedFilePath(resultPath);
+        setStatusMessage('Generation completed successfully!');
+      } catch (err: any) {
+        console.error('NPU process error:', err);
+        setErrorText(`NPU Generation Failed: ${err.message || err}`);
+      } finally {
+        setIsGenerating(false);
+      }
+    } else {
+      setStatusMessage('Spawning local NPU text-to-video synthesis pipeline...');
+      try {
+        const resultPath = await invoke<string>('process_video_ai', {
+          videoPath: 'none',
+          sketchPath: 'none',
+          prompt,
+          taskType: 'text-to-video',
+          strength
+        });
+        setGeneratedFilePath(resultPath);
+        setStatusMessage('AI Video Synthesis completed successfully!');
+      } catch (err: any) {
+        console.error('NPU video process error:', err);
+        setErrorText(`NPU Video Synthesis Failed: ${err.message || err}`);
+      } finally {
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -272,13 +289,31 @@ export default function AIStudio({ onSendToTimeline, onUseAsSketchGuide }: AIStu
           <h2>Local NPU Controls</h2>
         </div>
 
+        {/* Tab switcher for Image vs Video Mode */}
+        <div style={{ display: 'flex', backgroundColor: '#080810', borderRadius: '8px', padding: '3px', border: '1px solid #1c1d2e', marginBottom: '16px' }}>
+          <button
+            style={{ flex: 1, border: 'none', padding: '6px', borderRadius: '6px', background: studioMode === 'image' ? '#831843' : 'transparent', color: studioMode === 'image' ? '#ffffff' : '#64748b', fontSize: '0.72rem', cursor: 'pointer' }}
+            onClick={() => { setStudioMode('image'); setGeneratedFilePath(null); }}
+            disabled={isGenerating}
+          >
+            Sketch-to-Image
+          </button>
+          <button
+            style={{ flex: 1, border: 'none', padding: '6px', borderRadius: '6px', background: studioMode === 'video' ? '#831843' : 'transparent', color: studioMode === 'video' ? '#ffffff' : '#64748b', fontSize: '0.72rem', cursor: 'pointer' }}
+            onClick={() => { setStudioMode('video'); setGeneratedFilePath(null); }}
+            disabled={isGenerating}
+          >
+            Text-to-Video
+          </button>
+        </div>
+
         <div className={styles.controlGroup}>
           <label className={styles.controlLabel}>AI Prompt</label>
           <textarea
             className={styles.promptTextarea}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe what you want the local NPU to generate from your sketch..."
+            placeholder={studioMode === 'image' ? "Describe what you want the local NPU to generate from your sketch..." : "Describe the video clip details you want the text-to-video AI compiler to synthesize..."}
             disabled={isGenerating}
           />
         </div>
@@ -339,11 +374,20 @@ export default function AIStudio({ onSendToTimeline, onUseAsSketchGuide }: AIStu
           <div className={styles.outputBox}>
             <h3>Generated AI Asset</h3>
             <div className={styles.previewContainer}>
-              <img
-                src={convertFileSrc(generatedFilePath)}
-                alt="AI Output Preview"
-                className={styles.previewImage}
-              />
+              {generatedFilePath.toLowerCase().match(/\.(mp4|webm|mkv|mov|avi)$/) ? (
+                <video
+                  src={convertFileSrc(generatedFilePath)}
+                  controls
+                  className={styles.previewImage}
+                  style={{ width: '100%', borderRadius: '8px', maxHeight: '180px', backgroundColor: '#030307' }}
+                />
+              ) : (
+                <img
+                  src={convertFileSrc(generatedFilePath)}
+                  alt="AI Output Preview"
+                  className={styles.previewImage}
+                />
+              )}
             </div>
             <button className={styles.timelineButton} onClick={handleSendToTimeline}>
               Send to Timeline

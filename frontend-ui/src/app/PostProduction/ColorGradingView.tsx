@@ -53,6 +53,13 @@ export default function ColorGradingView({ selectedVideo, engine }: ColorGrading
           engine.block.setFloat(block, 'adjustments/saturation', (saturation + 100) / 100);
           engine.block.setFloat(block, 'adjustments/vignette', vignette / 100);
 
+          if (engine.block.hasProperty(block, 'adjustments/temperature')) {
+            engine.block.setFloat(block, 'adjustments/temperature', temperature / 100);
+          }
+          if (engine.block.hasProperty(block, 'adjustments/tint')) {
+            engine.block.setFloat(block, 'adjustments/tint', tint / 100);
+          }
+
           engine.block.setFloat(block, 'adjustments/shadows', (liftOffset.x + liftOffset.y) / 100);
           engine.block.setFloat(block, 'adjustments/midtones', (gammaOffset.x + gammaOffset.y) / 100);
           engine.block.setFloat(block, 'adjustments/highlights', (gainOffset.x + gainOffset.y) / 100);
@@ -61,7 +68,25 @@ export default function ColorGradingView({ selectedVideo, engine }: ColorGrading
     } catch (e) {
       console.warn("Failed to set engine adjustments directly (fallback applied):", e);
     }
-  }, [exposure, contrast, saturation, vignette, liftOffset, gammaOffset, gainOffset, engine]);
+  }, [exposure, contrast, saturation, vignette, temperature, tint, liftOffset, gammaOffset, gainOffset, engine]);
+
+  // CSS Filter and Color Overlays for Instant Visual Color Grading Feedback
+  const filterStyle = {
+    filter: `brightness(${100 + exposure}%) contrast(${100 + contrast}%) saturate(${100 + saturation}%) sepia(${vignette / 2}%) hue-rotate(${tint / 5}deg)`
+  };
+
+  const overlayStyle = {
+    backgroundColor: `rgba(${128 + gainOffset.x * 2.5}, ${128 + gammaOffset.y * 2.5}, ${128 + liftOffset.x * 2.5}, 0.15)`,
+    mixBlendMode: 'soft-light' as any,
+    pointerEvents: 'none' as any,
+    position: 'absolute' as any,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: '8px',
+    zIndex: 10
+  };
 
   const handleLutSelect = (lutName: string) => {
     setSelectedLut(lutName);
@@ -194,9 +219,13 @@ export default function ColorGradingView({ selectedVideo, engine }: ColorGrading
     <div className={styles.container}>
       {/* Left: Video Preview */}
       <div className={styles.previewPanel}>
-        <div className={styles.playerWrapper}>
+        <div className={styles.playerWrapper} style={filterStyle}>
           {selectedVideo ? (
-            <MainPlayer activeUrl={activeUrl} onEngineInit={() => {}} />
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+              <MainPlayer activeUrl={activeUrl} onEngineInit={() => {}} />
+              {/* Lift/Gamma/Gain overlay simulation */}
+              <div style={overlayStyle} />
+            </div>
           ) : (
             <div className={styles.emptyPlayer}>
               <span>Select a video from the Editor's library to start grading</span>
