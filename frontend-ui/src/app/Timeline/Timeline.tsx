@@ -188,6 +188,31 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
     };
   }, []);
 
+  // Listen to sidebar trigger events
+  useEffect(() => {
+    const handleTriggerSplit = () => {
+      handleSplitClip();
+    };
+    const handleTriggerSelect = () => {
+      const activeClip = clips.find(
+        (c) => currentTime >= c.startFrame && currentTime <= c.startFrame + c.durationFrames
+      );
+      if (activeClip) {
+        onSelectClip?.(activeClip.filePath);
+        addToast('success', `Selected clip: ${activeClip.fileName}`);
+      } else {
+        addToast('error', 'No clip under the playhead to select.');
+      }
+    };
+
+    window.addEventListener('trigger-split-clip', handleTriggerSplit);
+    window.addEventListener('trigger-select-clip', handleTriggerSelect);
+    return () => {
+      window.removeEventListener('trigger-split-clip', handleTriggerSplit);
+      window.removeEventListener('trigger-select-clip', handleTriggerSelect);
+    };
+  }, [clips, currentTime, onSelectClip]);
+
   // Time ticker effect for playing the timeline
   useEffect(() => {
     if (!isPlaying) return;
@@ -243,16 +268,53 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
     console.log("Timeline handleDrop: Drop triggered on Track:", trackNumber);
 
     try {
-      const dataStr = e.dataTransfer.getData('application/json') || e.dataTransfer.getData('text/plain');
-      console.log("Timeline handleDrop: dataTransfer JSON payload:", dataStr);
-      if (!dataStr) return;
+      let filePath = '';
 
-      const { full: filePath } = JSON.parse(dataStr);
-      if (!filePath) return;
+      // 1. Try to get it from the global window state (intra-app drag)
+      const draggedVideo = (window as any).lastDraggedVideo as VideoAsset | undefined;
+      if (draggedVideo && draggedVideo.full) {
+        filePath = draggedVideo.full;
+        // Clean up
+        try {
+          (window as any).lastDraggedVideo = undefined;
+        } catch (_) {}
+      }
 
-      // Compute drop position relative to track body
+      // 2. Fallback to OS file drop (if files are dragged from Windows Explorer)
+      if (!filePath && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        filePath = (file as any).path || '';
+        console.log("Timeline handleDrop: OS File drop detected:", filePath);
+      }
+
+      // 3. Fallback to parsing dataTransfer payload
+      if (!filePath) {
+        const dataStr = e.dataTransfer.getData('application/json') || e.dataTransfer.getData('text/plain');
+        console.log("Timeline handleDrop: dataTransfer JSON payload:", dataStr);
+        if (dataStr) {
+          try {
+            const parsed = JSON.parse(dataStr);
+            filePath = parsed.full || dataStr;
+          } catch {
+            filePath = dataStr; // Treat dataStr as the raw file path
+          }
+        }
+      }
+
+      if (!filePath) {
+        console.warn("Timeline handleDrop: No file path resolved from drop.");
+        return;
+      }
+
+      // Compute drop position relative to drop container
       const rect = e.currentTarget.getBoundingClientRect();
-      const dropX = e.clientX - rect.left;
+      let dropX = e.clientX - rect.left;
+      
+      // If dropping on the scroll container instead of trackBody,
+      // subtract the 100px track header width.
+      if (!e.currentTarget.classList.contains(styles.trackBody)) {
+        dropX = Math.max(0, dropX - 100);
+      }
       
       // Calculate start frame (0.2px = 1 frame, so 1px = 5 frames)
       const durationFrames = 150;
@@ -602,6 +664,9 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
       <div 
         className={styles.scrollContainer} 
         ref={scrollContainerRef}
+        onDragOver={(e) => handleDragOver(e, tracks[0] ?? 0)}
+        onDragEnter={(e) => handleDragOver(e, tracks[0] ?? 0)}
+        onDrop={(e) => handleDrop(e, tracks[0] ?? 0)}
       >
         <div className={styles.timelineGridMinWidth}>
           
@@ -653,6 +718,7 @@ export default function Timeline({ engine, onSelectClip, selectedVideo }: Timeli
                     activeDragTrack === trackNumber ? styles.dragOver : ''
                   }`}
                   onDragOver={(e) => handleDragOver(e, trackNumber)}
+                  onDragEnter={(e) => handleDragOver(e, trackNumber)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, trackNumber)}
                 >

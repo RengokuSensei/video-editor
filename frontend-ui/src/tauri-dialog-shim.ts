@@ -15,3 +15,9 @@ export async function open(options?: OpenDialogOptions): Promise<string | string
   const path = await invoke<string | null>('open_file_dialog');
   return path;
 }
+
+export async function save(): Promise<string | null> {
+  console.log("Tauri Dialog Shim: save() triggered");
+  const path = await invoke<string | null>('save_file_dialog');
+  return path;
+}

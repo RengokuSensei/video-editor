@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import type { Configuration, CreativeEngine } from '@cesdk/cesdk-js';
 import { convertFileSrc } from '../tauri-shim';
+import { save } from '../tauri-dialog-shim';
+import { invoke } from '@tauri-apps/api/core';
 import MainPlayer from './MainPlayer/MainPlayer';
 import { VIDEO_CATALOG } from './video-catalog';
 import type { VideoAsset } from './video-catalog';
@@ -15,6 +17,39 @@ import VfxView from './PostProduction/VfxView';
 import AudioView from './PostProduction/AudioView';
 import TranscriptView from './PostProduction/TranscriptView';
 import styles from './App.module.css';
+
+// ============================================================================
+// Diagnostics Console Log Interceptor Shim
+// ============================================================================
+if (typeof window !== 'undefined' && !(window as any).__consoleWrapped) {
+  (window as any).__consoleWrapped = true;
+  (window as any).__logBuffer = [];
+  
+  const originalLog = console.log;
+  const originalError = console.error;
+  const originalWarn = console.warn;
+
+  console.log = (...args) => {
+    const msg = `[${new Date().toLocaleTimeString()}] [INFO] ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')}`;
+    (window as any).__logBuffer.push(msg);
+    if ((window as any).__logBuffer.length > 300) (window as any).__logBuffer.shift();
+    originalLog.apply(console, args);
+  };
+
+  console.error = (...args) => {
+    const msg = `[${new Date().toLocaleTimeString()}] [ERROR] ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')}`;
+    (window as any).__logBuffer.push(msg);
+    if ((window as any).__logBuffer.length > 300) (window as any).__logBuffer.shift();
+    originalError.apply(console, args);
+  };
+
+  console.warn = (...args) => {
+    const msg = `[${new Date().toLocaleTimeString()}] [WARN] ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')}`;
+    (window as any).__logBuffer.push(msg);
+    if ((window as any).__logBuffer.length > 300) (window as any).__logBuffer.shift();
+    originalWarn.apply(console, args);
+  };
+}
 
 // ============================================================================
 // Types
@@ -122,6 +157,56 @@ export default function App({ config: _config }: AppProps) {
     setIsAIPanelOpen((prev) => !prev);
   }, []);
 
+  const handleExportClick = useCallback(async () => {
+    try {
+      const outputPath = await save();
+      if (!outputPath) {
+        console.log("Export cancelled by user.");
+        return;
+      }
+      
+      console.log(`Starting export of timeline to path: ${outputPath}`);
+      alert(`Exporting timeline to:\n${outputPath}\n\nPlease wait while the high-performance C++ Media Engine compiles the frames...`);
+      
+      const response = await invoke<string>('render_timeline_to_disk', {
+        outputPath,
+        encoderParams: "acodec=aac vcodec=libx264"
+      });
+      
+      console.log('Export successful:', response);
+      alert(`Export successful!\n\nSaved to: ${outputPath}`);
+    } catch (err: any) {
+      console.error('Export failed:', err);
+      alert(`Export failed:\n${err}`);
+    }
+  }, []);
+
+  const handleShareClick = useCallback(async () => {
+    if (selectedVideo) {
+      try {
+        await navigator.clipboard.writeText(selectedVideo.full);
+        alert(`Shared! Active project file path copied to clipboard:\n\n${selectedVideo.full}`);
+      } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+        alert(`Active Project File Path:\n\n${selectedVideo.full}`);
+      }
+    } else {
+      alert("Please select a video asset first to share its file path.");
+    }
+  }, [selectedVideo]);
+
+  const handleCopyLogs = useCallback(async () => {
+    const logs = (window as any).__logBuffer || [];
+    const logsText = logs.join('\n');
+    try {
+      await navigator.clipboard.writeText(logsText);
+      alert("Diagnostics logs successfully copied to clipboard! You can paste and share them directly.");
+    } catch (err) {
+      console.error("Failed to copy logs:", err);
+      alert("Failed to copy logs to clipboard. Logs are displayed below:\n\n" + logsText.substring(0, 1000));
+    }
+  }, []);
+
   const handleSendToTimeline = useCallback((filePath: string) => {
     // 1. Add asset to Media Bin
     handleImportLocal(filePath);
@@ -153,7 +238,7 @@ export default function App({ config: _config }: AppProps) {
       <div className={styles.navBar}>
         <div className={styles.navLeft}>
           <div className={styles.navLogo}>
-            <span className={styles.logoAccent}>⚡</span> Blender VSE Re-imagined
+            <span className={styles.logoAccent}>⚡</span> AA editor
           </div>
           <div className={styles.divider} />
           <div className={styles.navTabs}>
@@ -164,31 +249,31 @@ export default function App({ config: _config }: AppProps) {
                 setActivePanel('media');
               }}
             >
-              Edit Suite
+              Edit
             </button>
             <button
               className={`${styles.navTab} ${activeView === 'color' ? styles.activeTab : ''}`}
               onClick={() => setActiveView('color')}
             >
-              Color Grading
+              Color
             </button>
             <button
               className={`${styles.navTab} ${activeView === 'vfx' ? styles.activeTab : ''}`}
               onClick={() => setActiveView('vfx')}
             >
-              Fusion VFX
+              VFX
             </button>
             <button
               className={`${styles.navTab} ${activeView === 'audio' ? styles.activeTab : ''}`}
               onClick={() => setActiveView('audio')}
             >
-              Fairlight Audio
+              Audio
             </button>
             <button
               className={`${styles.navTab} ${activeView === 'transcript' ? styles.activeTab : ''}`}
               onClick={() => setActiveView('transcript')}
             >
-              AI Transcript
+              Transcript
             </button>
             <button
               className={`${styles.navTab} ${activeView === 'ai' ? styles.activeTab : ''}`}
@@ -212,8 +297,18 @@ export default function App({ config: _config }: AppProps) {
         </div>
 
         <div className={styles.navRight}>
-          <button className={styles.navBtn}>Share</button>
-          <button className={`${styles.navBtn} ${styles.btnPrimary}`}>Export</button>
+          <button 
+            className={styles.logIconBtn} 
+            onClick={handleCopyLogs}
+            title="Copy diagnostics logs for debugging"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" y1="19" x2="20" y2="19" />
+            </svg>
+          </button>
+          <button className={styles.navBtn} onClick={handleShareClick}>Share</button>
+          <button className={`${styles.navBtn} ${styles.btnPrimary}`} onClick={handleExportClick}>Export</button>
           <div className={styles.avatar}>A</div>
         </div>
       </div>
@@ -237,8 +332,7 @@ export default function App({ config: _config }: AppProps) {
                 <button
                   className={`${styles.toolBtn}`}
                   onClick={() => {
-                    // Select tool
-                    alert("Select tool activated (Blender port).");
+                    window.dispatchEvent(new CustomEvent('trigger-select-clip'));
                   }}
                   title="Select Box (B)"
                 >
@@ -247,8 +341,7 @@ export default function App({ config: _config }: AppProps) {
                 <button
                   className={`${styles.toolBtn}`}
                   onClick={() => {
-                    // Blade tool
-                    alert("Blade / Split tool activated (Blender port).");
+                    window.dispatchEvent(new CustomEvent('trigger-split-clip'));
                   }}
                   title="Blade / Split (K)"
                 >

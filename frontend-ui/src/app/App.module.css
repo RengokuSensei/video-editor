@@ -200,7 +200,7 @@
   width: 1px;
   height: 20px;
   background-color: #1c1d2e;
-  margin: 0 16px;
+  margin: 0 10px;
 }
 
 .miniDivider {
@@ -218,7 +218,7 @@
 
 .navTab {
   height: 100%;
-  padding: 0 14px;
+  padding: 0 10px;
   border: none;
   color: #94a3b8;
   font-size: 0.8rem;
@@ -242,7 +242,7 @@
   left: 8px;
   right: 8px;
   height: 2px;
-  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  background: linear-gradient(90deg, #ed5700, #ff8f00);
   opacity: 0;
   transform: scaleX(0.8);
   transition: opacity 0.15s, transform 0.15s;
@@ -261,9 +261,7 @@
 .navCenter {
   display: flex;
   align-items: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  margin: 0 16px;
 }
 
 .modeToggle {
@@ -316,16 +314,35 @@
 }
 
 .btnPrimary {
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #ed5700 0%, #ff8f00 100%);
   color: #ffffff;
   font-weight: 600;
   border: none;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 10px rgba(237, 87, 0, 0.3);
 }
 
 .btnPrimary:hover {
-  opacity: 0.9;
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff6a00 0%, #ffa500 100%) !important;
+  box-shadow: 0 6px 14px rgba(237, 87, 0, 0.4);
+}
+
+.logIconBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.logIconBtn:hover {
+  color: #ffffff;
+  background-color: #141727;
+  border-color: #ed5700;
 }
 
 .avatar {

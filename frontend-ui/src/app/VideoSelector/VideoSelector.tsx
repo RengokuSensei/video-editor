@@ -96,6 +96,11 @@ export default function VideoSelector({
 
   const handleDragStart = (e: React.DragEvent, video: VideoAsset) => {
     console.log("VideoSelector handleDragStart: Dragging asset:", video.full);
+    try {
+      (window as any).lastDraggedVideo = video;
+    } catch (err) {
+      console.warn("Failed to set window.lastDraggedVideo:", err);
+    }
     const payload = JSON.stringify({
       full: video.full,
       alt: video.alt

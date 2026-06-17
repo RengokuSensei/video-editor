@@ -50,6 +50,7 @@ pub fn run() {
     })
     .invoke_handler(tauri::generate_handler![
       open_file_dialog,
+      save_file_dialog,
       import_to_timeline,
       handle_ai_generation,
       process_sketch_to_npu,
@@ -376,6 +377,26 @@ async fn open_file_dialog(app: tauri::AppHandle) -> Result<Option<String>, Strin
 }
 
 #[tauri::command]
+async fn save_file_dialog() -> Result<Option<String>, String> {
+  #[cfg(target_os = "android")]
+  {
+    Ok(None)
+  }
+
+  #[cfg(not(target_os = "android"))]
+  {
+    let file = rfd::FileDialog::new()
+      .add_filter("Video Files", &["mp4"])
+      .save_file();
+
+    match file {
+      Some(path) => Ok(Some(path.to_string_lossy().into_owned())),
+      None => Ok(None),
+    }
+  }
+}
+
+#[tauri::command]
 #[allow(non_snake_case)]
 async fn import_to_timeline(
   app: tauri::AppHandle,
@@ -422,10 +443,27 @@ async fn import_to_timeline(
       .or(trackNumber)
       .ok_or_else(|| "Missing track_number/trackNumber argument".to_string())?;
 
+    // Map URL asset path (for catalog items) back to absolute local filesystem paths
+    let mut resolved_file_path = final_file_path.clone();
+    if resolved_file_path.starts_with("http://") 
+       || resolved_file_path.starts_with("https://") 
+       || resolved_file_path.starts_with("tauri://") 
+       || resolved_file_path.starts_with("asset://") 
+    {
+      if let Some(pos) = resolved_file_path.find("/assets/videos/") {
+        let subpath = &resolved_file_path[pos + "/assets/videos/".len()..];
+        let clean_filename = subpath.split('?').next().unwrap_or(subpath).split('#').next().unwrap_or(subpath);
+        let local_path = format!("d:/k50i/video/frontend-ui/public/assets/videos/{}", clean_filename);
+        if std::path::Path::new(&local_path).exists() {
+          resolved_file_path = local_path;
+        }
+      }
+    }
+
     let sidecar_path = get_sidecar_path(&app)?;
     
     let output = Command::new(&sidecar_path)
-      .arg(&final_file_path)
+      .arg(&resolved_file_path)
       .arg(final_start_time.to_string())
       .arg(final_track_number.to_string())
       .output()

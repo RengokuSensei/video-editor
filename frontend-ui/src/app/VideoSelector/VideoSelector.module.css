@@ -140,6 +140,10 @@
   transition: all 0.15s ease;
 }
 
+.localFileCard * {
+  pointer-events: none;
+}
+
 .localFileCard:hover {
   background: #474747;
   border-color: #ed5700;
